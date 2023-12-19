@@ -9,3 +9,65 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Users {
+  id            BigInt             @id @default(autoincrement())
+  name          String             @unique
+  password      String
+  email         String
+  roles         Roles[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
+  song          Songs[]
+  collections   SongsCollections[]
+  sharedContent SharedContent[]
+}
+
+model Roles {
+  name        String  @id
+  description String?
+  user        Users[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
+}
+
+// to jeszcze rozbudować o inne rzeczy
+model Songs {
+  id           BigInt             @id @default(autoincrement())
+  title        String
+  author       String
+  access       AccessType
+  addingUser   Users              @relation(fields: [addingUserId], references: [id]) // pytanie czy ta relacja mogłaby być opcjonalna
+  addingUserId BigInt             @unique // tj. czy piosenka musi/nie musi wiedzieć, jaki user ją dodał
+  playlist     SongsCollections[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Songs-SongsCollections)
+}
+
+model SongsCollections {
+  id          BigInt      @id @default(autoincrement())
+  name        String
+  description String?
+  songs       Songs[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Songs-SongsCollections)
+  type        ContentType
+  access      AccessType
+  creator     Users?      @relation(fields: [creatorId], references: [id])
+  creatorId   BigInt?     @unique
+}
+
+// tabela przechowująca dane o tym, komu oraz jakie zostały udostępnione treści
+model SharedContent {
+  recipient   Users       @relation(fields: [recipientId], references: [id])
+  recipientId BigInt
+  contentId   BigInt
+  contentType ContentType
+  sharedAt    DateTime    @default(now())
+
+  @@id([recipientId, contentId])
+}
+
+enum ContentType {
+  SONG
+  ALBUM
+  PLAYLIST
+}
+
+enum AccessType {
+  PUBLIC
+  PRIVATE
+  SHARED
+}
