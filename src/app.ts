@@ -1,14 +1,16 @@
-import express, {Request, Response} from 'express';
+import {Request, Response} from 'express';
 import {logInvokedEndpoint} from './utils/logger'
+import {app} from "./controllers/expressController";
 
 require('dotenv').config()
-const app = express()
+const server = app
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log(`Server is listening on port: ${process.env.PORT}`)
 })
 
+
 // only for test purposes
-app.get('/:text', logInvokedEndpoint, (req: Request, res: Response) => {
+server.get('/:text', logInvokedEndpoint, (req: Request, res: Response) => {
     res.status(200).send(req.params.text)
 })
