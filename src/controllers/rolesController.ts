@@ -11,9 +11,6 @@ export async function addNewRole(name: string, description: string) {
 }
 
 export async function deleteRole(name: string): Promise<Roles | null> {
-    if (!name) {
-        return null
-    }
     const role = await findRoleByName(name)
     if (!role) {
         return null

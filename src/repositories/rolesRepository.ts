@@ -18,6 +18,18 @@ export async function createRole(role: Prisma.RolesCreateInput): Promise<Roles> 
     return prisma.roles.create({data: role})
 }
 
+export async function updateRole(name: string, updateData: Prisma.RolesUpdateInput) {
+    return prisma.roles.update({
+        where: {
+            name: name
+        },
+        data: {
+            name: updateData.name,
+            description: updateData.description
+        }
+    })
+}
+
 export async function deleteRoleByName(name: string): Promise<Roles> {
     return prisma.roles.delete({
         where: {
