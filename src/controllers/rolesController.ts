@@ -1,8 +1,8 @@
-import {Prisma, Roles} from "@prisma/client";
+import {Prisma, Role} from "@prisma/client";
 import {createRole, deleteRoleByName, findRoleByName} from "../repositories/rolesRepository";
 
 export async function addNewRole(name: string, description: string) {
-    const role: Prisma.RolesCreateInput = {
+    const role: Prisma.RoleCreateInput = {
         name: name,
         description: description
     }
@@ -10,7 +10,7 @@ export async function addNewRole(name: string, description: string) {
     return await createRole(role)
 }
 
-export async function deleteRole(name: string): Promise<Roles | null> {
+export async function deleteRole(name: string): Promise<Role | null> {
     const role = await findRoleByName(name)
     if (!role) {
         return null
