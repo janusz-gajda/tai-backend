@@ -1,5 +1,5 @@
 import express, {Express} from "express";
-import {router as rolesRouter} from "../routes/rolesRoutes";
+import {router as rolesRouter} from "../routes/roleRoutes";
 
 export const app: Express = express()
 

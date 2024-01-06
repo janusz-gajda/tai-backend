@@ -1,7 +1,7 @@
 import {Prisma, Role} from "@prisma/client";
-import {createRole, deleteRoleByName, findRoleByName} from "../repositories/rolesRepository";
+import {createRole, deleteRoleByName, findRoleByName} from "../repositories/roleRepository";
 
-export async function addNewRole(name: string, description: string) {
+export async function addNewRole(name: string, description: string): Promise<Role> {
     const role: Prisma.RoleCreateInput = {
         name: name,
         description: description

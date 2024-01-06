@@ -1,8 +1,8 @@
 import {Request, Response} from 'express';
 import {logInvokedEndpoint} from './utils/logger'
 import {app} from "./controllers/expressController";
+import "dotenv/config"
 
-require('dotenv').config()
 const server = app
 
 server.listen(process.env.PORT, () => {
