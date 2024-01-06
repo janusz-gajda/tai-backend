@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./bin/app.js",
-    "dev": "npx nodemon ./src/app.ts"
+    "dev": "npx nodemon ./src/app.ts",
+    "build_prisma": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",

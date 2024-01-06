@@ -15,7 +15,7 @@ model Users {
   name          String             @unique
   password      String
   email         String
-  googleId      String
+  googleId      String?
   roles         Roles[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
   song          Songs[]
   collections   SongsCollections[]
