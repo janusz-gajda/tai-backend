@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken"
 import "dotenv/config"
 import { randomBytes } from "crypto"
 
-const secret = randomBytes(128).toString("hex")
+export const secret = randomBytes(128).toString("hex")
 
 export function signJWT(user: User): string{
     //TODO:
@@ -28,22 +28,3 @@ export async function authUserByEmail(email: string, password: string): Promise<
     }
     return user
 }
-
-export const jwtStrategy = new JWTStrategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: secret
-}, async (payload, done) => {
-    try{
-        if (Date.now() - payload._toc > 7200000){
-            return done('Token expired', false)
-        }
-        const user = await findUserById(payload._id)
-        if(!user){
-            return done(null, false)
-        }
-        return done(null, user)
-
-    } catch (e: any){
-        return done(e.message, false)
-    }
-})

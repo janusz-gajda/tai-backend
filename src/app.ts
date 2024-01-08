@@ -1,3 +1,4 @@
+import "./utils/overrides";
 import {Request, Response} from 'express';
 import {logInvokedEndpoint} from './utils/logger'
 import {app} from "./controllers/expressController";
