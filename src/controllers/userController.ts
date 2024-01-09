@@ -3,7 +3,7 @@ import {createUser, findUserByEmail, findUserById, findUserByName, updateUser} f
 import bcrypt from "bcrypt"
 import "dotenv/config"
 
-const saltRounds = (process.env.SALT_ROUNDS || 10) as number
+const saltRounds: number = Number(process.env.SALT_ROUNDS) || 10
 
 export async function addUser(name: string, email: string, password: string): Promise<User> {
 
