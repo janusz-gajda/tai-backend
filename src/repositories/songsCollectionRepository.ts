@@ -1,4 +1,4 @@
-import {ContentType, PrismaClient, SongsCollection} from '@prisma/client'
+import {ContentType, Prisma, PrismaClient, SongsCollection} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -10,10 +10,10 @@ export async function findAllCollections(): Promise<SongsCollection[]> {
     })
 }
 
-export async function findCollectionsByContentType(contentType: ContentType): Promise<SongsCollection[]> {
+export async function findCollectionsByContentType(collectionType: ContentType): Promise<SongsCollection[]> {
     return prisma.songsCollection.findMany({
         where: {
-            type: contentType
+            type: collectionType
         },
         include: {
             songs: true
@@ -29,6 +29,23 @@ export async function findPlaylistsFromUserById(userId: bigint): Promise<SongsCo
         },
         include: {
             songs: true
+        }
+    })
+}
+
+export async function createSongsCollection(collection: Prisma.SongsCollectionCreateInput, creatorId?: bigint): Promise<SongsCollection> {
+    return prisma.songsCollection.create({
+        data: {
+            name: collection.name,
+            description: collection.description,
+            type: collection.type,
+            access: collection.access,
+            creator: {
+                connect: {id: creatorId}
+            }
+        },
+        include: {
+            creator: true
         }
     })
 }

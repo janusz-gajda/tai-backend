@@ -47,7 +47,9 @@ model SongsCollection {
   type        ContentType
   access      AccessType
   creator     User?      @relation(fields: [creatorId], references: [id])
-  creatorId   BigInt?     @unique
+  creatorId BigInt?
+
+  @@unique([name, creatorId])
 }
 
 // tabela przechowująca dane o tym, komu oraz jakie zostały udostępnione treści
