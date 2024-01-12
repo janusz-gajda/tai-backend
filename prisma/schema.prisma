@@ -44,12 +44,10 @@ model SongsCollection {
   name        String
   description String?
   songs       Song[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Songs-SongsCollections)
-  type        ContentType
+  type ContentType // PLAYLIST/ALBUM
   access      AccessType
   creator     User?      @relation(fields: [creatorId], references: [id])
   creatorId BigInt?
-
-  @@unique([name, creatorId])
 }
 
 // tabela przechowująca dane o tym, komu oraz jakie zostały udostępnione treści
@@ -57,7 +55,7 @@ model SharedContent {
   recipient   User       @relation(fields: [recipientId], references: [id])
   recipientId BigInt
   contentId   BigInt
-  contentType ContentType
+  contentType ContentType // SONG/PLAYLIST
   sharedAt    DateTime    @default(now())
 
   @@id([recipientId, contentId])
