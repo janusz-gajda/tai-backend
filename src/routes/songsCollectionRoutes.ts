@@ -6,10 +6,13 @@ import {
     addSongsCollection,
     deleteSongsCollection,
     getSongsCollectionDataById,
-    getSongsCollectionsData, updateSongsCollection
+    getSongsCollectionsData,
+    getSongsCollectionsDataFromCreator,
+    updateSongsCollection
 } from "../controllers/songsCollectionController";
 import {findUserByName} from "../repositories/userRepository";
-import {ResponseError} from "../utils/response";
+import {ResponseError, responseOk} from "../utils/response";
+import {authenticateUser} from "../controllers/authController";
 
 export const router: Router = express.Router()
 
@@ -27,16 +30,11 @@ router.route('/')
         }
         res.status(200).json(data)
     })
-    .post(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
-        // TODO: autentykacja usera + wzięcie id z tokena jwt i ustawienie go jako creatorId
-        const creatorId = req.body.creatorId
-        if (creatorId == undefined) {
-            res.status(400).json()
-            return
-        }
+    .post(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        const userData = res.locals.user
         try {
-            const addedCollection = await addSongsCollection(req.body, creatorId)
-            res.status(201).json(addedCollection)
+            const addedCollection = await addSongsCollection(req.body, userData.id)
+            res.status(201).json(responseOk(userData, addedCollection))
         } catch (e) {
             if (e instanceof ResponseError) {
                 res.status(e.status).json({message: e.message})
@@ -46,13 +44,14 @@ router.route('/')
             next()
         }
     })
-    .put(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
+    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const updatedCollection = await updateSongsCollection(req.body)
+            const userData = res.locals.user
+            const updatedCollection = await updateSongsCollection(req.body, userData.id)
             if (!updatedCollection) {
                 res.status(404).json()
             } else {
-                res.status(200).json(updatedCollection)
+                res.status(200).json(responseOk(userData, updatedCollection))
             }
         } catch (e) {
             if (e instanceof ResponseError) {
@@ -104,4 +103,15 @@ router.route('/users/:username')
             return
         }
         res.status(200).json(data)
+    })
+
+router.route('/owner/jwt')
+    .get(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        const userData = res.locals.user
+        const data: SongsCollection[] = await getSongsCollectionsDataFromCreator(userData.id)
+        if (data.length == 0) {
+            res.status(404).json()
+        } else {
+            res.status(200).json(responseOk(userData, data))
+        }
     })

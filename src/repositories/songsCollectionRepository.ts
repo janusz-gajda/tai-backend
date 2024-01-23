@@ -13,7 +13,30 @@ export async function findAllSongsCollections(): Promise<SongsCollection[]> {
 export async function findSongsCollectionById(collectionId: bigint): Promise<SongsCollection | null> {
     return prisma.songsCollection.findFirst({
         where: {
-            id: collectionId
+            id: collectionId,
+        },
+        include: {
+            songs: true
+        }
+    })
+}
+
+export async function findSongsCollectionsFromCreator(creatorId: bigint): Promise<SongsCollection[]> {
+    return prisma.songsCollection.findMany({
+        where: {
+            creatorId: creatorId
+        },
+        include: {
+            songs: true
+        }
+    })
+}
+
+export async function findSongsCollectionByIdAndCreatorId(collectionId: bigint, creatorId: bigint): Promise<SongsCollection | null> {
+    return prisma.songsCollection.findFirst({
+        where: {
+            id: collectionId,
+            creatorId: creatorId
         },
         include: {
             songs: true
