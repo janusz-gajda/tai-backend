@@ -1,6 +1,6 @@
 import express, {NextFunction, Request, Response, Router} from "express";
 import {logInvokedEndpoint} from "../utils/logger";
-import {findPlaylistsFromUserById} from "../repositories/songsCollectionRepository";
+import {findPlaylistsFromUser} from "../repositories/songsCollectionRepository";
 import {SongsCollection} from "@prisma/client";
 import {
     addSongsCollection,
@@ -13,6 +13,7 @@ import {
 import {findUserByName} from "../repositories/userRepository";
 import {ResponseError, responseOk} from "../utils/response";
 import {authenticateUser} from "../controllers/authController";
+import {isIdNumeric} from "../utils/isIdNumeric";
 
 export const router: Router = express.Router()
 
@@ -50,9 +51,9 @@ router.route('/')
             const updatedCollection = await updateSongsCollection(req.body, userData.id)
             if (!updatedCollection) {
                 res.status(404).json()
-            } else {
-                res.status(200).json(responseOk(userData, updatedCollection))
+                return
             }
+            res.status(200).json(responseOk(userData, updatedCollection))
         } catch (e) {
             if (e instanceof ResponseError) {
                 res.status(e.status).json({message: e.message})
@@ -64,12 +65,7 @@ router.route('/')
     })
 
 router.route('/:id')
-    .get(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
-        if (isNaN(parseInt(req.params.id))) {
-            res.status(400).json()
-            return
-        }
-
+    .get(logInvokedEndpoint, isIdNumeric, async (req: Request, res: Response, next: NextFunction) => {
         const collectionId = BigInt(req.params.id)
         const data: SongsCollection | null = await getSongsCollectionDataById(collectionId)
         if (!data) {
@@ -78,11 +74,17 @@ router.route('/:id')
             res.status(200).json(data)
         }
     })
-    .delete(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
+    .delete(logInvokedEndpoint, authenticateUser, isIdNumeric, async (req: Request, res: Response, next: NextFunction) => {
+        if (isNaN(parseInt(req.params.id))) {
+            res.status(400).json()
+            return
+        }
+
         const collectionId = BigInt(req.params.id)
-        const deletedCollection: SongsCollection | null = await deleteSongsCollection(collectionId)
+        const userData = res.locals.user
+        const deletedCollection: SongsCollection | null = await deleteSongsCollection(collectionId, userData.id)
         if (deletedCollection) {
-            res.status(204).json()
+            res.status(204).json(responseOk(userData))
         } else {
             res.status(404).json()
         }
@@ -97,7 +99,7 @@ router.route('/users/:username')
             return
         }
 
-        const data: SongsCollection[] = await findPlaylistsFromUserById(user.id)
+        const data: SongsCollection[] = await findPlaylistsFromUser(user.id)
         if (data.length == 0) {
             res.status(404).json()
             return
@@ -111,7 +113,7 @@ router.route('/owner/jwt')
         const data: SongsCollection[] = await getSongsCollectionsDataFromCreator(userData.id)
         if (data.length == 0) {
             res.status(404).json()
-        } else {
-            res.status(200).json(responseOk(userData, data))
+            return
         }
+        res.status(200).json(responseOk(userData, data))
     })

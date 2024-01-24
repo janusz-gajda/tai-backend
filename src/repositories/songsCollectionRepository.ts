@@ -55,7 +55,7 @@ export async function findSongsCollectionsByContentType(collectionType: ContentT
     })
 }
 
-export async function findPlaylistsFromUserById(userId: bigint): Promise<SongsCollection[]> {
+export async function findPlaylistsFromUser(userId: bigint): Promise<SongsCollection[]> {
     return prisma.songsCollection.findMany({
         where: {
             type: ContentType.PLAYLIST,

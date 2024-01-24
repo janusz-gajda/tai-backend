@@ -67,8 +67,8 @@ export async function updateSongsCollection(data: any, creatorId: bigint) {
     return await updateSongsCollections(data.id, updateData)
 }
 
-export async function deleteSongsCollection(collectionId: bigint) {
-    if (!(await findSongsCollectionById(collectionId))) {
+export async function deleteSongsCollection(collectionId: bigint, creatorId: bigint) {
+    if (!(await findSongsCollectionByIdAndCreatorId(collectionId, creatorId))) {
         return null
     }
     return await deleteSongsCollectionById(collectionId)
