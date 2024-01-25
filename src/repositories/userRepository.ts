@@ -1,4 +1,4 @@
-import {Prisma, PrismaClient, User} from "@prisma/client"
+import {AccessType, ContentType, Prisma, PrismaClient, User} from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -30,6 +30,14 @@ export async function findUserByEmail(email: string): Promise<User | null> {
     })
 }
 
+export async function findUserByGoogleId(googleId: string): Promise<User | null> {
+    return prisma.user.findFirst({
+        where: {
+            googleId: googleId
+        }
+    })
+}
+
 export async function updateUser(id: number, updateData: Prisma.UserUpdateInput) {
     return prisma.user.update({
         where: {
@@ -39,6 +47,18 @@ export async function updateUser(id: number, updateData: Prisma.UserUpdateInput)
             name: updateData.name,
             email: updateData.email
         }
+    })
+}
+
+export async function setGoogleIdToExistingUserOrCreateNewUser(user: Prisma.UserCreateInput) {
+    return prisma.user.upsert({
+        where: {
+            email: user.email
+        },
+        update: {
+            googleId: user.googleId
+        },
+        create: user
     })
 }
 
