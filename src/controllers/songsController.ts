@@ -4,6 +4,7 @@ import mm from "music-metadata";
 import {addSong} from "../repositories/songsRepository";
 import {NextFunction, Request, Response} from "express";
 import * as fs from "fs";
+import {addSongToExistingAlbumOrCreateNewAlbum} from "../repositories/songsCollectionRepository";
 
 export async function addNewSong(accessType: string, file: Express.Multer.File, addingUserId: bigint) {
     const songMetadata = await mm.parseFile(file.path)
@@ -17,9 +18,15 @@ export async function addNewSong(accessType: string, file: Express.Multer.File, 
             connect: {id: addingUserId}
         }
     }
+
     const createdSong: Song = await addSong(addedSongData)
     const newPath = `./songs/${createdSong.id}`
     moveFile(file, newPath)
+
+    if (common.album) {
+        await addSongToExistingAlbumOrCreateNewAlbum(createdSong, common.album)
+    }
+
     return createdSong
 }
 
@@ -29,6 +36,10 @@ export const validateAccessType = (req: Request, res: Response, next: NextFuncti
         throw new ResponseError(400, 'invalid song\'s access type')
     }
     next()
+}
+
+function addSongToAlbum() {
+
 }
 
 function moveFile(file: Express.Multer.File, newFilePath: string) {

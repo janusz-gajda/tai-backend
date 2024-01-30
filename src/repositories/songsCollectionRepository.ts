@@ -1,4 +1,4 @@
-import {ContentType, Prisma, PrismaClient, SongsCollection} from '@prisma/client'
+import {ContentType, Prisma, PrismaClient, Song, SongsCollection} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -82,6 +82,42 @@ export async function createSongsCollection(collection: Prisma.SongsCollectionCr
             creator: true
         }
     })
+}
+
+export async function addSongToExistingAlbumOrCreateNewAlbum(song: Song, albumName: string) {
+    const album: SongsCollection | null = await prisma.songsCollection.findFirst({
+        where: {
+            name: albumName, type: ContentType.ALBUM
+        }
+    })
+    if (album) {
+        return prisma.songsCollection.update({
+            where: {
+                id: album.id
+            },
+            data: {
+                songs: {
+                    connect: {
+                        id: song.id
+                    }
+                }
+            }
+        });
+    }
+    return prisma.songsCollection.create({
+        data: {
+            name: albumName,
+            description: albumName,
+            type: ContentType.ALBUM,
+            access: song.access,
+            songs: {
+                connect: {
+                    id: song.id
+                }
+            }
+        }
+    })
+
 }
 
 export async function updateSongsCollections(id: bigint, updateData: Prisma.SongsCollectionUpdateInput): Promise<SongsCollection> {
