@@ -35,7 +35,7 @@ model Song {
   author       String
   access       AccessType
   addingUser   User              @relation(fields: [addingUserId], references: [id]) // pytanie czy ta relacja mogłaby być opcjonalna
-  addingUserId BigInt             @unique // tj. czy piosenka musi/nie musi wiedzieć, jaki user ją dodał
+  addingUserId BigInt // tj. czy piosenka musi/nie musi wiedzieć, jaki user ją dodał
   playlist     SongsCollection[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Songs-SongsCollections)
 }
 
