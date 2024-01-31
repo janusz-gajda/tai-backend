@@ -16,7 +16,10 @@ router.route('/')
             }
             const accessType: string = req.query.access as string
             const userData = res.locals.user
-            await addNewSong(accessType, file, userData.id)
-
-            res.status(201).json()
+            try {
+                await addNewSong(accessType, file, userData.id)
+                res.status(201).json()
+            } catch (e) {
+                next(e)
+            }
         })
