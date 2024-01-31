@@ -1,9 +1,16 @@
 import {Prisma, User} from "@prisma/client";
-import {createUser, findUserByEmail, findUserById, findUserByName, updateUser} from "../repositories/userRepository";
+import {createUser, findUserByName} from "../repositories/userRepository";
 import bcrypt from "bcrypt"
 import "dotenv/config"
+import {throwIfObjectIsNull} from "../utils/dataChecks";
 
 const saltRounds: number = Number(process.env.SALT_ROUNDS) || 10
+
+export async function getUserIdByName(name: string): Promise<bigint> {
+    const user = await findUserByName(name)
+    throwIfObjectIsNull(user)
+    return user?.id as bigint
+}
 
 export async function addUser(name: string, email: string, password: string): Promise<User> {
     const user: Prisma.UserCreateInput = {

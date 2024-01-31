@@ -2,7 +2,6 @@ import {AccessType, ContentType, Prisma, SongsCollection} from "@prisma/client";
 import {
     createSongsCollection,
     deleteSongsCollectionById,
-    findAllSongsCollections,
     findSongsCollectionById,
     findSongsCollectionByIdAndCreatorId,
     findSongsCollectionsByContentType,
@@ -11,24 +10,30 @@ import {
 } from "../repositories/songsCollectionRepository";
 import {ResponseError} from "../utils/response";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {throwIfArrayIsEmpty, throwIfObjectIsNull} from "../utils/dataChecks";
 
-export async function getSongsCollectionsData(collectionType: string): Promise<SongsCollection[] | null> {
-    const typeUpperCase = collectionType.toUpperCase()
-    if (typeUpperCase === ContentType.PLAYLIST || typeUpperCase === ContentType.ALBUM) {
-        return await findSongsCollectionsByContentType(typeUpperCase)
+export async function getSongsCollectionsData(collectionType: string): Promise<SongsCollection[]> {
+    const typeUpperCase: string = collectionType.toUpperCase()
+    if (typeUpperCase !== ContentType.PLAYLIST && typeUpperCase !== ContentType.ALBUM && typeUpperCase !== 'ALL') {
+        throw new ResponseError(400, 'invalid collection type')
     }
-    if (typeUpperCase == 'ALL') {
-        return await findAllSongsCollections()
-    }
-    return null
+
+    const type = typeUpperCase == 'ALL' ? undefined : typeUpperCase
+    const collections: SongsCollection[] = await findSongsCollectionsByContentType(type)
+    throwIfArrayIsEmpty(collections)
+    return collections
 }
 
-export async function getSongsCollectionDataById(collectionId: bigint): Promise<SongsCollection | null> {
-    return await findSongsCollectionById(collectionId)
+export async function getSongsCollectionDataById(collectionId: bigint): Promise<SongsCollection> {
+    const collection = await findSongsCollectionById(collectionId)
+    throwIfObjectIsNull(collectionId)
+    return collection as SongsCollection
 }
 
-export async function getSongsCollectionsDataFromCreator(creatorId: bigint): Promise<SongsCollection[]> {
-    return await findSongsCollectionsFromCreator(creatorId)
+export async function getSongsCollectionsDataFromCreator(creatorId: bigint, contentType?: ContentType): Promise<SongsCollection[]> {
+    const songsCollections: SongsCollection[] = await findSongsCollectionsFromCreator(creatorId, contentType)
+    throwIfArrayIsEmpty(songsCollections)
+    return songsCollections
 }
 
 export async function addSongsCollection(requestBody: any, creatorId: bigint) {
@@ -69,7 +74,7 @@ export async function updateSongsCollection(data: any, creatorId: bigint) {
 
 export async function deleteSongsCollection(collectionId: bigint, creatorId: bigint) {
     if (!(await findSongsCollectionByIdAndCreatorId(collectionId, creatorId))) {
-        return null
+        throw new ResponseError(404, 'songs collection not found')
     }
     return await deleteSongsCollectionById(collectionId)
 }

@@ -21,10 +21,11 @@ export async function findSongsCollectionById(collectionId: bigint): Promise<Son
     })
 }
 
-export async function findSongsCollectionsFromCreator(creatorId: bigint): Promise<SongsCollection[]> {
+export async function findSongsCollectionsFromCreator(creatorId: bigint, contentType?: ContentType): Promise<SongsCollection[]> {
     return prisma.songsCollection.findMany({
         where: {
-            creatorId: creatorId
+            creatorId: creatorId,
+            type: contentType
         },
         include: {
             songs: true
@@ -44,7 +45,7 @@ export async function findSongsCollectionByIdAndCreatorId(collectionId: bigint, 
     })
 }
 
-export async function findSongsCollectionsByContentType(collectionType: ContentType): Promise<SongsCollection[]> {
+export async function findSongsCollectionsByContentType(collectionType?: ContentType): Promise<SongsCollection[]> {
     return prisma.songsCollection.findMany({
         where: {
             type: collectionType

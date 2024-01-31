@@ -18,7 +18,7 @@ export async function createRole(role: Prisma.RoleCreateInput): Promise<Role> {
     return prisma.role.create({data: role})
 }
 
-export async function updateRole(name: string, updateData: Prisma.RoleUpdateInput) {
+export async function updateRoleData(name: string, updateData: Prisma.RoleUpdateInput) {
     return prisma.role.update({
         where: {
             name: name
