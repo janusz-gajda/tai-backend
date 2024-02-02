@@ -1,4 +1,4 @@
-import {ContentType, Prisma, PrismaClient, SongsCollection} from '@prisma/client'
+import {AccessType, ContentType, Prisma, PrismaClient, Song, SongsCollection} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -85,6 +85,48 @@ export async function createSongsCollection(collection: Prisma.SongsCollectionCr
     })
 }
 
+export async function findAlbumWithSongsByName(albumName: string) {
+    return prisma.songsCollection.findFirst({
+        where: {
+            name: albumName
+        },
+        include: {
+            songs: true
+        }
+    })
+}
+
+export async function addSongToSongsCollection(songId: bigint, collectionId: bigint) {
+    return prisma.songsCollection.update({
+        where: {
+            id: collectionId
+        },
+        data: {
+            songs: {
+                connect: {
+                    id: songId
+                }
+            }
+        }
+    });
+}
+
+export async function createAlbumIfNotExists(song: Song, albumName: string) {
+    return prisma.songsCollection.create({
+        data: {
+            name: albumName,
+            description: `Songs included in album ${albumName}`,
+            type: ContentType.ALBUM,
+            access: AccessType.PUBLIC,
+            songs: {
+                connect: {
+                    id: song.id
+                }
+            }
+        }
+    })
+}
+
 export async function updateSongsCollections(id: bigint, updateData: Prisma.SongsCollectionUpdateInput): Promise<SongsCollection> {
     return prisma.songsCollection.update({
         where: {
@@ -100,6 +142,21 @@ export async function deleteSongsCollectionById(collectionId: bigint): Promise<S
     return prisma.songsCollection.delete({
         where: {
             id: collectionId
+        }
+    })
+}
+
+export async function deleteSongFromSongsCollection(songId: bigint, collectionId: bigint) {
+    return prisma.songsCollection.update({
+        where: {
+            id: collectionId
+        },
+        data: {
+            songs: {
+                disconnect: {
+                    id: songId
+                }
+            }
         }
     })
 }
