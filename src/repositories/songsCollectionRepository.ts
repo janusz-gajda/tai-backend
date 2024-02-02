@@ -95,7 +95,7 @@ export async function findAlbumWithSongsByName(albumName: string) {
     })
 }
 
-export async function addSongToSongsCollection(song: Song, collectionId: bigint) {
+export async function addSongToSongsCollection(songId: bigint, collectionId: bigint) {
     return prisma.songsCollection.update({
         where: {
             id: collectionId
@@ -103,7 +103,7 @@ export async function addSongToSongsCollection(song: Song, collectionId: bigint)
         data: {
             songs: {
                 connect: {
-                    id: song.id
+                    id: songId
                 }
             }
         }
@@ -126,17 +126,6 @@ export async function createAlbumIfNotExists(song: Song, albumName: string) {
     })
 }
 
-// export async function addSongToExistingAlbumOrCreateNewAlbum(song: Song, albumName: string) {
-//     const album: SongsCollection | null = await prisma.songsCollection.findFirst({
-//         where: {
-//             name: albumName, type: ContentType.ALBUM
-//         }
-//     })
-//     if (album) {
-//
-//     }
-// }
-
 export async function updateSongsCollections(id: bigint, updateData: Prisma.SongsCollectionUpdateInput): Promise<SongsCollection> {
     return prisma.songsCollection.update({
         where: {
@@ -152,6 +141,21 @@ export async function deleteSongsCollectionById(collectionId: bigint): Promise<S
     return prisma.songsCollection.delete({
         where: {
             id: collectionId
+        }
+    })
+}
+
+export async function deleteSongFromSongsCollection(songId: bigint, collectionId: bigint) {
+    return prisma.songsCollection.update({
+        where: {
+            id: collectionId
+        },
+        data: {
+            songs: {
+                disconnect: {
+                    id: songId
+                }
+            }
         }
     })
 }

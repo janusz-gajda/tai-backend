@@ -1,6 +1,8 @@
 import {AccessType, ContentType, Prisma, SongsCollection} from "@prisma/client";
 import {
+    addSongToSongsCollection,
     createSongsCollection,
+    deleteSongFromSongsCollection,
     deleteSongsCollectionById,
     findAllSongsCollections,
     findSongsCollectionById,
@@ -11,6 +13,7 @@ import {
 } from "../repositories/songsCollectionRepository";
 import {ResponseError} from "../utils/response";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
+import {findSongById} from "../repositories/songsRepository";
 
 export async function getSongsCollectionsData(collectionType: string): Promise<SongsCollection[] | null> {
     const typeUpperCase = collectionType.toUpperCase()
@@ -65,6 +68,32 @@ export async function updateSongsCollection(data: any, creatorId: bigint) {
         description: data.description
     }
     return await updateSongsCollections(data.id, updateData)
+}
+
+export async function addSongToPlaylist(songId: bigint, playlistId: bigint, userId: bigint) {
+    if (!(await findSongById(songId))) {
+        throw new ResponseError(404, 'song not found')
+    }
+
+    const playlist = await findSongsCollectionById(playlistId)
+    if (!playlist || playlist.creatorId != userId) {
+        throw new ResponseError(404, 'playlist not found')
+    }
+
+    await addSongToSongsCollection(songId, playlistId)
+}
+
+export async function removeSongFromPlaylist(songId: bigint, playlistId: bigint, userId: bigint) {
+    if (!(await findSongById(songId))) {
+        throw new ResponseError(404, 'song not found')
+    }
+
+    const playlist = await findSongsCollectionById(playlistId)
+    if (!playlist || playlist.creatorId != userId) {
+        throw new ResponseError(404, 'playlist not found')
+    }
+
+    await deleteSongFromSongsCollection(songId, playlistId)
 }
 
 export async function deleteSongsCollection(collectionId: bigint, creatorId: bigint) {

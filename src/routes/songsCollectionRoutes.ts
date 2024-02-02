@@ -4,16 +4,18 @@ import {findPlaylistsFromUser} from "../repositories/songsCollectionRepository";
 import {SongsCollection} from "@prisma/client";
 import {
     addSongsCollection,
+    addSongToPlaylist,
     deleteSongsCollection,
     getSongsCollectionDataById,
     getSongsCollectionsData,
     getSongsCollectionsDataFromCreator,
+    removeSongFromPlaylist,
     updateSongsCollection
 } from "../controllers/songsCollectionController";
 import {findUserByName} from "../repositories/userRepository";
 import {ResponseError, responseOk} from "../utils/response";
 import {authenticateUser} from "../controllers/authController";
-import {isIdNumeric} from "../utils/isIdNumeric";
+import {checkIdsNumeric, isIdNumeric} from "../utils/isIdNumeric";
 
 export const router: Router = express.Router()
 
@@ -87,6 +89,34 @@ router.route('/:id')
             res.status(204).json(responseOk(userData))
         } else {
             res.status(404).json()
+        }
+    })
+
+router.route('/:songId/playlist/:playlistId')
+    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            checkIdsNumeric(true, req.params.songId, req.params.playlistId)
+            const songId = BigInt(req.params.songId)
+            const playlistId = BigInt(req.params.playlistId)
+            const userData = res.locals.user
+
+            await addSongToPlaylist(songId, playlistId, userData.id)
+            res.status(204).json()
+        } catch (e) {
+            next(e)
+        }
+    })
+    .delete(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            checkIdsNumeric(true, req.params.songId, req.params.playlistId)
+            const songId = BigInt(req.params.songId)
+            const playlistId = BigInt(req.params.playlistId)
+            const userData = res.locals.user
+
+            await removeSongFromPlaylist(songId, playlistId, userData.id)
+            res.status(204).json()
+        } catch (e) {
+            next(e)
         }
     })
 

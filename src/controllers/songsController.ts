@@ -71,7 +71,7 @@ async function updateAlbum(song: Song, albumName: string) {
         return await createAlbumIfNotExists(song, albumName)
     }
     if (!album.songs.some(s => s.title.toLowerCase().includes(song.title.toLowerCase()))) {
-        return await addSongToSongsCollection(song, album.id)
+        return await addSongToSongsCollection(song.id, album.id)
     }
 }
 
