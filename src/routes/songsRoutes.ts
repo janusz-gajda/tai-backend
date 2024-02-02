@@ -2,8 +2,9 @@ import {NextFunction, Request, Response, Router} from "express";
 import {logInvokedEndpoint} from "../utils/logger";
 import {authenticateUser} from "../controllers/authController";
 import {upload} from "../utils/multer";
-import {addNewSong, validateAccessType} from "../controllers/songsController";
+import {addNewSong, deleteSong, validateAccessType} from "../controllers/songsController";
 import {ResponseError} from "../utils/response";
+import {isIdNumeric} from "../utils/isIdNumeric";
 
 export const router: Router = Router()
 
@@ -23,3 +24,15 @@ router.route('/')
                 next(e)
             }
         })
+
+router.route('/:id')
+    .delete(logInvokedEndpoint, isIdNumeric, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        const userData = res.locals.user
+        const songId = BigInt(req.params.id)
+        try {
+            await deleteSong(songId, userData.id)
+            res.status(204).json()
+        } catch (e) {
+            next(e)
+        }
+    })
