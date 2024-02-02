@@ -80,12 +80,9 @@ export async function addSongToPlaylist(songId: bigint, playlistId: bigint, user
         throw new ResponseError(404, 'song not found')
     }
 
-    const playlist = await findSongsCollectionById(playlistId)
-    if (!playlist || playlist.creatorId != userId) {
+    if (!(await addSongToSongsCollection(songId, playlistId, userId))) {
         throw new ResponseError(404, 'playlist not found')
     }
-
-    await addSongToSongsCollection(songId, playlistId)
 }
 
 export async function removeSongFromPlaylist(songId: bigint, playlistId: bigint, userId: bigint) {
@@ -93,12 +90,9 @@ export async function removeSongFromPlaylist(songId: bigint, playlistId: bigint,
         throw new ResponseError(404, 'song not found')
     }
 
-    const playlist = await findSongsCollectionById(playlistId)
-    if (!playlist || playlist.creatorId != userId) {
+    if (!(await deleteSongFromSongsCollection(songId, playlistId, userId))) {
         throw new ResponseError(404, 'playlist not found')
     }
-
-    await deleteSongFromSongsCollection(songId, playlistId)
 }
 
 export async function deleteSongsCollection(collectionId: bigint, creatorId: bigint) {

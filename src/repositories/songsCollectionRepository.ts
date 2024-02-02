@@ -96,10 +96,11 @@ export async function findAlbumWithSongsByName(albumName: string) {
     })
 }
 
-export async function addSongToSongsCollection(songId: bigint, collectionId: bigint) {
+export async function addSongToSongsCollection(songId: bigint, collectionId: bigint, creatorId: bigint) {
     return prisma.songsCollection.update({
         where: {
-            id: collectionId
+            id: collectionId,
+            creatorId: creatorId
         },
         data: {
             songs: {
@@ -146,10 +147,11 @@ export async function deleteSongsCollectionById(collectionId: bigint): Promise<S
     })
 }
 
-export async function deleteSongFromSongsCollection(songId: bigint, collectionId: bigint) {
+export async function deleteSongFromSongsCollection(songId: bigint, collectionId: bigint, creatorId: bigint) {
     return prisma.songsCollection.update({
         where: {
-            id: collectionId
+            id: collectionId,
+            creatorId: creatorId
         },
         data: {
             songs: {
