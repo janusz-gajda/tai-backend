@@ -1,6 +1,6 @@
-import express, {Request, Response, NextFunction} from "express";
+import express, {Request, Response} from "express";
 import {logInvokedEndpoint} from "../utils/logger";
-import {authUserByEmail} from "../controllers/authController";
+import {authUser} from "../controllers/authController";
 import {User} from "@prisma/client";
 import {responseOk} from "../utils/response";
 import {addUser} from "../controllers/userController";
@@ -16,7 +16,7 @@ router.route('/login').post(logInvokedEndpoint, async (req: Request, res: Respon
         res.status(400).json({message: 'username and password are required'})
         return
     }
-    const user: User | null = await authUserByEmail(username, password)
+    const user: User | null = await authUser(username, password)
     if (!user) {
         res.status(401).json({message: 'invalid credentials'})
         return

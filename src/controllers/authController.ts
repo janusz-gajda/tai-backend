@@ -1,10 +1,9 @@
 import {User} from "@prisma/client"
-import { findUserByEmail, findUserById } from "../repositories/userRepository"
+import {findUserByEmail, findUserById, findUserByName} from "../repositories/userRepository"
 import bcrypt from "bcrypt"
-import {Strategy as JWTStrategy, ExtractJwt} from "passport-jwt"
 import jwt from "jsonwebtoken"
 import "dotenv/config"
-import { randomBytes } from "crypto"
+import {randomBytes} from "crypto"
 import {NextFunction, Request, Response} from "express";
 
 export const secret = randomBytes(128).toString("hex")
@@ -41,8 +40,9 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     }
 }
 
-export async function authUserByEmail(email: string, password: string): Promise<User | null> {
-    const user = await findUserByEmail(email)
+export async function authUser(data: string, password: string): Promise<User | null> {
+    let user = await findUserByEmail(data)
+    user = user ? user : await findUserByName(data)
     if (!user) {
         return null
     }
