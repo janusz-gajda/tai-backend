@@ -3,6 +3,7 @@ import passport from "passport";
 import {router as rolesRouter} from "../routes/roleRoutes";
 import {router as authRouter} from "../routes/authRoutes";
 import {router as userRouter} from "../routes/userRoutes";
+import {router as sharedContentRouter} from "../routes/sharedContentRoutes"
 import {router as songsRouter} from "../routes/songsRoutes"
 import {router as songsCollectionRouter} from "../routes/songsCollectionRoutes"
 import {errorHandler} from "../utils/response";
@@ -20,5 +21,6 @@ app.use('/auth', authRouter)
 app.use('/collections', songsCollectionRouter)
 app.use('/user', passport.authenticate("jwt", {session: false}), userRouter)
 app.use('/songs', songsRouter)
+app.use('/sharedContent', sharedContentRouter)
 
 app.use(errorHandler)

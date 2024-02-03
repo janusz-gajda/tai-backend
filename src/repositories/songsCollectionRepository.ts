@@ -96,7 +96,7 @@ export async function findAlbumWithSongsByName(albumName: string) {
     })
 }
 
-export async function addSongToSongsCollection(songId: bigint, collectionId: bigint, creatorId: bigint) {
+export async function addSongToSongsCollection(songId: bigint, collectionId: bigint, creatorId?: bigint) {
     return prisma.songsCollection.update({
         where: {
             id: collectionId,

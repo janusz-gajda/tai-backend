@@ -73,7 +73,7 @@ router.route('/:id')
     })
 
 router.route('/:songId/playlist/:playlistId')
-    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+    .post(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
             checkIdsNumeric(true, req.params.songId, req.params.playlistId)
             const songId = BigInt(req.params.songId)
@@ -86,7 +86,7 @@ router.route('/:songId/playlist/:playlistId')
             next(e)
         }
     })
-    .delete(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
             checkIdsNumeric(true, req.params.songId, req.params.playlistId)
             const songId = BigInt(req.params.songId)
