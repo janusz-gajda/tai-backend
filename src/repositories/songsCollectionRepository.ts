@@ -139,6 +139,17 @@ export async function updateSongsCollections(id: bigint, updateData: Prisma.Song
     })
 }
 
+export async function updateSongsCollectionAccessType(id: bigint, accessType: AccessType) {
+    return prisma.songsCollection.update({
+        where: {
+            id: id
+        },
+        data: {
+            access: accessType
+        }
+    })
+}
+
 export async function deleteSongsCollectionById(collectionId: bigint): Promise<SongsCollection | null> {
     return prisma.songsCollection.delete({
         where: {

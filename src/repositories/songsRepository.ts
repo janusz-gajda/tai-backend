@@ -10,10 +10,30 @@ export async function findSongById(songId: bigint): Promise<Song | null> {
     })
 }
 
+export async function findSongByIdAndAddingUserId(songId: bigint, addingUserId: bigint): Promise<Song | null> {
+    return prisma.song.findFirst({
+        where: {
+            id: songId,
+            addingUserId: addingUserId
+        }
+    })
+}
+
 export async function addSong(songData: Prisma.SongCreateInput): Promise<Song> {
     return prisma.song.create({
         data: songData
     });
+}
+
+export async function updateSongAccessType(id: bigint, accessType: AccessType) {
+    return prisma.song.update({
+        where: {
+            id: id
+        },
+        data: {
+            access: accessType
+        }
+    })
 }
 
 export async function deleteSongById(songId: bigint): Promise<Song> {
