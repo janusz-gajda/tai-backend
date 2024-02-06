@@ -1,6 +1,6 @@
 import express, {Express} from "express";
 import passport from "passport";
-import {router as rolesRouter} from "../routes/roleRoutes";
+import {router as permissionsRouter} from "../routes/permissionRoutes";
 import {router as authRouter} from "../routes/authRoutes";
 import {router as userRouter} from "../routes/userRoutes";
 import {router as sharedContentRouter} from "../routes/sharedContentRoutes"
@@ -16,7 +16,7 @@ passport.use("jwt", jwtStrategy)
 passport.use(oauthGoogleStrategy)
 
 app.use(express.json())
-app.use('/roles', rolesRouter)
+app.use('/permissions', permissionsRouter)
 app.use('/auth', authRouter)
 app.use('/collections', songsCollectionRouter)
 app.use('/user', passport.authenticate("jwt", {session: false}), userRouter)

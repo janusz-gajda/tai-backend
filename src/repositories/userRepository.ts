@@ -1,4 +1,4 @@
-import {AccessType, ContentType, Prisma, PrismaClient, User} from "@prisma/client"
+import {Prisma, PrismaClient, User} from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -50,6 +50,18 @@ export async function updateUser(id: number, updateData: Prisma.UserUpdateInput)
     })
 }
 
+export async function updatePermissionsFromUser(name: string, permissionName: string, action: string): Promise<User | null> {
+    // mode == true => assign permission
+    // mode == false => revoke permission
+    const data = prepareDataToUpdate(permissionName, action)
+    return prisma.user.update({
+        where: {
+            name: name
+        },
+        data: data
+    })
+}
+
 export async function setGoogleIdToExistingUserOrCreateNewUser(user: Prisma.UserCreateInput) {
     return prisma.user.upsert({
         where: {
@@ -68,5 +80,35 @@ export async function deleteUser(id: number): Promise<User> {
             id: id
         }
     })
+}
+
+export async function findPermissionsFromUser(id: number) {
+    return prisma.user.findUnique({
+        select: {
+            permissions: true
+        },
+        where: {
+            id: id
+        }
+    }).permissions()
+}
+
+function prepareDataToUpdate(permissionName: string, action: string) {
+    if ('ASSIGN' === action.toUpperCase()) {
+        return {
+            permissions: {
+                connect: {
+                    name: permissionName
+                }
+            }
+        }
+    }
+    return {
+        permissions: {
+            disconnect: {
+                name: permissionName
+            }
+        }
+    }
 
 }

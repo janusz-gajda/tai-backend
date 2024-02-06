@@ -11,18 +11,18 @@ datasource db {
 }
 
 model User {
-  id            BigInt             @id @default(autoincrement())
-  name          String             @unique
+  id          BigInt       @id @default(autoincrement())
+  name        String       @unique
   password      String
-  email         String             @unique
+  email       String       @unique
   googleId      String?
-  roles         Role[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
+  permissions Permission[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
   songs         Song[]
   collections   SongsCollection[]
   sharedContent SharedContent[]
 }
 
-model Role {
+model Permission {
   name        String  @id
   description String?
   user        User[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Roles-Users)
@@ -30,7 +30,7 @@ model Role {
 
 // to jeszcze rozbudować o inne rzeczy
 model Song {
-  id           BigInt             @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
   title        String
   author       String
   access       AccessType
@@ -44,15 +44,15 @@ model SongsCollection {
   name        String
   description String?
   songs       Song[] // to robi pod spodem ukrytą tabelę z kluczami obcymi (relacja Songs-SongsCollections)
-  type ContentType // PLAYLIST/ALBUM
+  type    ContentType // PLAYLIST/ALBUM
   access      AccessType
-  creator     User?      @relation(fields: [creatorId], references: [id])
+  creator User?       @relation(fields: [creatorId], references: [id])
   creatorId BigInt?
 }
 
 // tabela przechowująca dane o tym, komu oraz jakie zostały udostępnione treści
 model SharedContent {
-  recipient   User       @relation(fields: [recipientId], references: [id])
+  recipient User @relation(fields: [recipientId], references: [id])
   recipientId BigInt
   contentId   BigInt
   contentType ContentType // SONG/PLAYLIST
