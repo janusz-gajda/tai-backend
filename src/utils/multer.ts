@@ -18,8 +18,9 @@ const storage = multer.diskStorage({
 const fileFilter = (req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => {
     if (!acceptedFileTypes.includes(file.mimetype)) {
         callback(new ResponseError(415, 'invalid file type'))
+    } else {
+        callback(null, true)
     }
-    callback(null, true)
 }
 
 export const upload = multer({
