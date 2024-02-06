@@ -16,7 +16,7 @@ router.route('/')
             if (!file) {
                 throw new ResponseError(400, 'no file found')
             }
-            const accessType: string = req.query.access as string
+            const accessType: AccessType = req.query.access as AccessType
             const userData = res.locals.user
             try {
                 await addNewSong(accessType, file, userData.id)
@@ -43,7 +43,7 @@ router.route('/:id')
         const songId = BigInt(req.params.id)
         try {
             await deleteSong(songId, userData.id)
-            res.status(204).json(responseOk(userData))
+            res.status(200).json(responseOk(userData))
         } catch (e) {
             next(e)
         }

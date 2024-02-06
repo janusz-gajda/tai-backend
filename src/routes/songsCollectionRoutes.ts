@@ -43,10 +43,6 @@ router.route('/')
         try {
             const userData = res.locals.user
             const updatedCollection = await updateSongsCollection(req.body, userData.id)
-            if (!updatedCollection) {
-                res.status(404).json()
-                return
-            }
             res.status(200).json(responseOk(userData, updatedCollection))
         } catch (e) {
             next(e)
@@ -79,7 +75,7 @@ router.route('/:id')
             const collectionId = BigInt(req.params.id)
             const userData = res.locals.user
             await deleteSongsCollection(collectionId, userData.id)
-            res.status(204).json(responseOk(userData))
+            res.status(200).json(responseOk(userData))
         } catch (e) {
             next(e)
         }
@@ -94,7 +90,7 @@ router.route('/:playlistId/song/:songId')
             const userData = res.locals.user
 
             await addSongToPlaylist(songId, playlistId, userData.id)
-            res.status(204).json()
+            res.status(200).json(responseOk(userData))
         } catch (e) {
             next(e)
         }
@@ -107,7 +103,7 @@ router.route('/:playlistId/song/:songId')
             const userData = res.locals.user
 
             await removeSongFromPlaylist(songId, playlistId, userData.id)
-            res.status(204).json()
+            res.status(200).json(responseOk(userData))
         } catch (e) {
             next(e)
         }

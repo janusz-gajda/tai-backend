@@ -67,7 +67,7 @@ export async function updateSongsCollection(data: any, creatorId: bigint) {
     }
     const updatedCollection = await findSongsCollectionByIdAndCreatorId(data.id, creatorId)
     if (!updatedCollection) {
-        return null
+        throw new ResponseError(404, 'songs collection not found')
     }
 
     const updateData: Prisma.SongsCollectionUpdateInput = {

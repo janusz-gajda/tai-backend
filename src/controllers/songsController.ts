@@ -11,7 +11,7 @@ import {
 } from "../repositories/songsCollectionRepository";
 import {countShareByContentIdAndContentType} from "../repositories/sharedContentRepository";
 
-export async function addNewSong(accessType: string, file: Express.Multer.File, addingUserId: bigint) {
+export async function addNewSong(accessType: AccessType, file: Express.Multer.File, addingUserId: bigint) {
     const songMetadata = await mm.parseFile(file.path)
     const common = songMetadata.common
 
@@ -23,7 +23,7 @@ export async function addNewSong(accessType: string, file: Express.Multer.File, 
     const addedSongData: Prisma.SongCreateInput = {
         title: common.title as string,
         author: common.artist as string,
-        access: accessType as AccessType,
+        access: accessType,
         addingUser: {
             connect: {id: addingUserId}
         }
