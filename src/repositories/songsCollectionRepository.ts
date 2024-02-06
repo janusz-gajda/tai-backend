@@ -139,10 +139,11 @@ export async function updateSongsCollections(id: bigint, updateData: Prisma.Song
     })
 }
 
-export async function updateSongsCollectionAccessType(id: bigint, accessType: AccessType) {
+export async function updateSongsCollectionAccessType(id: bigint, accessType: AccessType, creatorId?: bigint) {
     return prisma.songsCollection.update({
         where: {
-            id: id
+            id: id,
+            creatorId: creatorId
         },
         data: {
             access: accessType

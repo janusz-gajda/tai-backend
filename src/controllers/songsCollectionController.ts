@@ -8,12 +8,14 @@ import {
     findSongsCollectionByIdAndCreatorId,
     findSongsCollectionsByContentType,
     findSongsCollectionsFromCreator,
+    updateSongsCollectionAccessType,
     updateSongsCollections
 } from "../repositories/songsCollectionRepository";
 import {ResponseError} from "../utils/response";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
 import {throwIfArrayIsEmpty, throwIfObjectIsNull} from "../utils/dataChecks";
 import {findSongById} from "../repositories/songsRepository";
+import {countShareByContentIdAndContentType} from "../repositories/sharedContentRepository";
 
 export async function getSongsCollectionsData(collectionType: string): Promise<SongsCollection[]> {
     const typeUpperCase: string = collectionType.toUpperCase()
@@ -73,6 +75,21 @@ export async function updateSongsCollection(data: any, creatorId: bigint) {
         description: data.description
     }
     return await updateSongsCollections(data.id, updateData)
+}
+
+export async function setSongsCollectionAccessType(collectionId: bigint, accessType: AccessType, creatorId: bigint) {
+    let updatedSongsCollection: SongsCollection | null
+    if (accessType === AccessType.PUBLIC) {
+        updatedSongsCollection = await updateSongsCollectionAccessType(collectionId, AccessType.PUBLIC, creatorId)
+    } else if (await countShareByContentIdAndContentType(collectionId, ContentType.SONG)) {
+        updatedSongsCollection = await updateSongsCollectionAccessType(collectionId, AccessType.SHARED, creatorId)
+    } else {
+        updatedSongsCollection = await updateSongsCollectionAccessType(collectionId, AccessType.PRIVATE, creatorId)
+    }
+    if (!updatedSongsCollection) {
+        throw new ResponseError(404, 'songs collection not found')
+    }
+    return updatedSongsCollection
 }
 
 export async function addSongToPlaylist(songId: bigint, playlistId: bigint, userId: bigint) {

@@ -25,10 +25,11 @@ export async function addSong(songData: Prisma.SongCreateInput): Promise<Song> {
     });
 }
 
-export async function updateSongAccessType(id: bigint, accessType: AccessType) {
+export async function updateSongAccessType(id: bigint, accessType: AccessType, userId?: bigint): Promise<Song | null> {
     return prisma.song.update({
         where: {
-            id: id
+            id: id,
+            addingUserId: userId
         },
         data: {
             access: accessType

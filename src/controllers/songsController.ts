@@ -1,7 +1,7 @@
-import {AccessType, Prisma, Song} from "@prisma/client";
+import {AccessType, ContentType, Prisma, Song} from "@prisma/client";
 import {ResponseError} from "../utils/response";
 import mm from "music-metadata";
-import {addSong, deleteSongById, findSongById, songExists} from "../repositories/songsRepository";
+import {addSong, deleteSongById, findSongById, songExists, updateSongAccessType} from "../repositories/songsRepository";
 import {NextFunction, Request, Response} from "express";
 import * as fs from "fs";
 import {
@@ -9,6 +9,7 @@ import {
     createAlbumIfNotExists,
     findAlbumWithSongsByName
 } from "../repositories/songsCollectionRepository";
+import {countShareByContentIdAndContentType} from "../repositories/sharedContentRepository";
 
 export async function addNewSong(accessType: string, file: Express.Multer.File, addingUserId: bigint) {
     const songMetadata = await mm.parseFile(file.path)
@@ -44,6 +45,21 @@ export async function addNewSong(accessType: string, file: Express.Multer.File, 
     return createdSong
 }
 
+export async function setSongAccessType(songId: bigint, accessType: AccessType, addingUserId: bigint): Promise<Song> {
+    let updatedSong: Song | null
+    if (accessType === AccessType.PUBLIC) {
+        updatedSong = await updateSongAccessType(songId, AccessType.PUBLIC, addingUserId)
+    } else if (await countShareByContentIdAndContentType(songId, ContentType.SONG)) {
+        updatedSong = await updateSongAccessType(songId, AccessType.SHARED, addingUserId)
+    } else {
+        updatedSong = await updateSongAccessType(songId, AccessType.PRIVATE, addingUserId)
+    }
+    if (!updatedSong) {
+        throw new ResponseError(404, 'song not found')
+    }
+    return updatedSong
+}
+
 export async function deleteSong(songId: bigint, addingUserId: bigint) {
     const songToDelete = await findSongById(songId)
     if (!songToDelete) {
@@ -58,7 +74,7 @@ export async function deleteSong(songId: bigint, addingUserId: bigint) {
 }
 
 export const validateAccessType = (req: Request, res: Response, next: NextFunction) => {
-    const accessType = req.query.access as string
+    const accessType: AccessType = req.query.access as AccessType
     if (accessType !== AccessType.PRIVATE && accessType !== AccessType.PUBLIC) {
         throw new ResponseError(400, 'invalid song\'s access type')
     }
