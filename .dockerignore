@@ -2,5 +2,7 @@
 node_modules
 songs
 tmp
+docker_compose
 npm-debug.log
 .env
+.env.example
