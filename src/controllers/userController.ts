@@ -1,9 +1,10 @@
 import {Prisma, User} from "@prisma/client";
 import {
+    assignPermissionToUser,
     createUser,
     findPermissionsFromUser,
     findUserByName,
-    updatePermissionsFromUser
+    revokePermissionFromUser
 } from "../repositories/userRepository";
 import bcrypt from "bcrypt"
 import "dotenv/config"
@@ -30,12 +31,17 @@ export async function addUser(name: string, email: string, password: string): Pr
     return await createUser(user)
 }
 
-export async function updateUserPermissions(permissionName: string, userName: string, action: string) {
+export async function updateUserPermissions(permissionName: string, userName: string, requestMethod: string) {
     if (!(await findPermissionByName(permissionName))) {
         throw new ResponseError(404, 'role not found')
     }
 
-    const updatedUser = await updatePermissionsFromUser(userName, permissionName, action)
+    let updatedUser = null
+    if (requestMethod === 'POST') {
+        updatedUser = await assignPermissionToUser(userName, permissionName)
+    } else if (requestMethod === 'PUT') {
+        updatedUser = await revokePermissionFromUser(userName, permissionName)
+    }
     if (!updatedUser) {
         throw new ResponseError(404, 'user not found')
     }

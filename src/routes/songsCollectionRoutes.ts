@@ -21,11 +21,11 @@ import {validateAccessType} from "../controllers/songsController";
 export const router: Router = express.Router()
 
 router.route('/')
-    .get(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
+    .get(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         const collectionType = req.query.type as string
         try {
             const data: SongsCollection[] = await getSongsCollectionsData(collectionType)
-            res.status(200).json(data)
+            res.status(200).json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }
@@ -50,11 +50,11 @@ router.route('/')
     })
 
 router.route('/:id')
-    .get(logInvokedEndpoint, isIdNumeric, async (req: Request, res: Response, next: NextFunction) => {
+    .get(logInvokedEndpoint, isIdNumeric, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const collectionId = BigInt(req.params.id)
             const data: SongsCollection = await getSongsCollectionDataById(collectionId)
-            res.status(200).json(data)
+            res.status(200).json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }
@@ -110,11 +110,11 @@ router.route('/:playlistId/song/:songId')
     })
 
 router.route('/users/:username')
-    .get(logInvokedEndpoint, async (req: Request, res: Response, next: NextFunction) => {
+    .get(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId: bigint = await getUserIdByName(req.params.username)
             const data: SongsCollection[] = await getSongsCollectionsDataFromCreator(userId, ContentType.PLAYLIST)
-            res.status(200).json(data)
+            res.status(200).json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }

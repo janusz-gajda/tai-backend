@@ -50,15 +50,31 @@ export async function updateUser(id: number, updateData: Prisma.UserUpdateInput)
     })
 }
 
-export async function updatePermissionsFromUser(name: string, permissionName: string, action: string): Promise<User | null> {
-    // mode == true => assign permission
-    // mode == false => revoke permission
-    const data = prepareDataToUpdate(permissionName, action)
+export async function assignPermissionToUser(userName: string, permissionName: string): Promise<User | null> {
     return prisma.user.update({
         where: {
-            name: name
+            name: userName
         },
-        data: data
+        data: {
+            permissions: {
+                connect: {
+                    name: permissionName
+                }
+            }
+        }
+    })
+}
+
+export async function revokePermissionFromUser(userName: string, permissionName: string) {
+    return prisma.user.update({
+        where: {name: userName},
+        data: {
+            permissions: {
+                disconnect: {
+                    name: permissionName
+                }
+            }
+        }
     })
 }
 
@@ -91,24 +107,4 @@ export async function findPermissionsFromUser(id: number) {
             id: id
         }
     }).permissions()
-}
-
-function prepareDataToUpdate(permissionName: string, action: string) {
-    if ('ASSIGN' === action.toUpperCase()) {
-        return {
-            permissions: {
-                connect: {
-                    name: permissionName
-                }
-            }
-        }
-    }
-    return {
-        permissions: {
-            disconnect: {
-                name: permissionName
-            }
-        }
-    }
-
 }

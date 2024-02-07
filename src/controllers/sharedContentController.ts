@@ -17,7 +17,7 @@ export async function shareContent(contentId: bigint, contentType: ContentType, 
     const contentToShare: SongsCollection | Song = await getContent(contentId, contentType, sharingUserId)
     const recipient = await findUserByName(recipientName)
     if (!recipient) {
-        throw new ResponseError(400)
+        throw new ResponseError(404, 'recipient not found')
     }
 
     const sharedContentData = {
@@ -34,7 +34,7 @@ export async function unshareContent(contentId: bigint, contentType: ContentType
     const contentToShare: SongsCollection | Song = await getContent(contentId, contentType, sharingUserId)
     const recipient = await findUserByName(recipientName)
     if (!recipient) {
-        throw new ResponseError(400)
+        throw new ResponseError(404, 'recipient not found')
     }
 
     const sharedContentData = {

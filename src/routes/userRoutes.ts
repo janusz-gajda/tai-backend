@@ -3,7 +3,7 @@ import {responseOk} from "../utils/response";
 import {Permission, User} from "@prisma/client";
 import {logInvokedEndpoint} from "../utils/logger";
 import {authenticateUser} from "../controllers/authController";
-import {getUserPermissions, updateUserPermissions, validateAction} from "../controllers/userController";
+import {getUserPermissions, updateUserPermissions} from "../controllers/userController";
 import {checkIfUserHasPermission} from "../controllers/permissionController";
 import {Permissions} from "../utils/permissions";
 
@@ -18,17 +18,23 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.route('/:name/permission/:permission')
-    .put(logInvokedEndpoint, validateAction, authenticateUser, getUserPermissions, async (req: Request, res: Response, next: NextFunction) => {
-        const userData = res.locals.user
-        const authUserPermissions: Permission[] = res.locals.permissions as Permission[]
-        const updatedUserName = req.params.name
-        const permissionToRevoke = req.params.permission
-        const action = req.query.action as string
-        try {
-            checkIfUserHasPermission(authUserPermissions, Permissions.ADMIN)
-            await updateUserPermissions(permissionToRevoke, updatedUserName, action)
-            res.status(200).json(responseOk(userData))
-        } catch (e) {
-            next(e)
-        }
+    .post(logInvokedEndpoint, authenticateUser, getUserPermissions, async (req: Request, res: Response, next: NextFunction) => {
+        await manageUserPermission(req, res, next)
     })
+    .put(logInvokedEndpoint, authenticateUser, getUserPermissions, async (req: Request, res: Response, next: NextFunction) => {
+        await manageUserPermission(req, res, next)
+    })
+
+async function manageUserPermission(req: Request, res: Response, next: NextFunction) {
+    const userData = res.locals.user
+    const authUserPermissions: Permission[] = res.locals.permissions as Permission[]
+    const updatedUserName = req.params.name
+    const permissionToRevoke = req.params.permission
+    try {
+        checkIfUserHasPermission(authUserPermissions, Permissions.ADMIN)
+        await updateUserPermissions(permissionToRevoke, updatedUserName, req.method)
+        res.status(200).json(responseOk(userData))
+    } catch (e) {
+        next(e)
+    }
+}
