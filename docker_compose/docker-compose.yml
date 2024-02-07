@@ -1,0 +1,45 @@
+version: '3.7'
+
+networks:
+  front:
+    name: front
+  back:
+    name: back
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60
+    networks:
+      - back
+      - front
+
+  mariadb:
+    image: mariadb
+    volumes:
+      - mariadbdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    networks:
+      - back
+
+  backend:
+    image: marepal631/tai_backend
+    restart: always
+    volumes:
+      - ./songs:/songs
+      - ./tmp:/tmp
+    ports:
+      - "8080:8080"
+    networks:
+      - back
+
+volumes:
+  mariadbdata:
