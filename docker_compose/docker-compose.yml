@@ -31,7 +31,7 @@ services:
       - back
 
   backend:
-    image: backend:0.0.1
+    image: marepal631/tai_backend
     restart: always
     volumes:
       - songsdata:/songs
