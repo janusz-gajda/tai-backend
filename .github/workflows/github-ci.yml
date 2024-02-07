@@ -34,4 +34,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/tai_backend:$IMAGE_VERSION
+        tags: ${{ secrets.DOCKER_USERNAME }}/tai_backend:${{ IMAGE_VERSION }}
