@@ -31,13 +31,16 @@ services:
       - back
 
   backend:
-    image: marepal631/tai_backend
+    image: backend:0.0.1
     restart: always
     volumes:
       - songsdata:/songs
       - tmpdata:/tmp
     ports:
       - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_started
     networks:
       - back
 

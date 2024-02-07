@@ -7,4 +7,4 @@ COPY . .
 RUN yarn run build_prisma
 RUN yarn run build
 EXPOSE 8080
-CMD npm start
+CMD yarn db_push && yarn start
