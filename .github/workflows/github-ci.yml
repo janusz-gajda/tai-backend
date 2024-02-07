@@ -30,4 +30,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/tai/backend:${{ github.ref.name }}
+        tags: ${{ secrets.DOCKER_USERNAME }}/tai_backend:${{ github.ref.name }}
