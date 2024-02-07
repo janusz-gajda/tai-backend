@@ -34,8 +34,8 @@ services:
     image: marepal631/tai_backend
     restart: always
     volumes:
-      - ./songs:/songs
-      - ./tmp:/tmp
+      - songsdata:/songs
+      - tmpdata:/tmp
     ports:
       - "8080:8080"
     networks:
@@ -43,3 +43,5 @@ services:
 
 volumes:
   mariadbdata:
+  songsdata:
+  tmpdata:
