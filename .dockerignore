@@ -1,7 +1,7 @@
 .idea
 node_modules
 songs
-tmp
+songs/tmp
 docker_compose
 npm-debug.log
 .env

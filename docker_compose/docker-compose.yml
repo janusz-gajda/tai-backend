@@ -19,30 +19,52 @@ services:
   mariadb:
     image: mariadb
     volumes:
-      - mariadbdata:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PWD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PWD}
     ports:
       - "3306:3306"
     networks:
       - back
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 80s
+
+  liquibase:
+    image: liquibase/liquibase:4.26-alpine
+    environment:
+      - INSTALL_MYSQL=true
+    command: update --url=jdbc:mysql://mariadb:3306/${DB_NAME} --changeLogFile=/changelog.yml --username=${DB_USER} --password=${DB_PWD}
+    volumes:
+      - ./liquibase/changelog/changelog.yml:/liquibase/changelog/changelog.yml
+      - ./liquibase/scripts:/liquibase/scripts
+    networks:
+      - back
+    depends_on:
+      mariadb:
+        condition: service_healthy
 
   backend:
-    image: backend:0.0.2 # marepal631/tai_backend
+    image: marepal631/tai_backend # backend:0.0.3
     restart: always
     volumes:
-      - appdata:/app
+      - backend-data:/app/songs
     ports:
       - "8080:8080"
     depends_on:
       mariadb:
-        condition: service_started
+        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
     networks:
       - back
 
 volumes:
-  mariadbdata:
-  appdata:
+  mariadb-data:
+  backend-data:

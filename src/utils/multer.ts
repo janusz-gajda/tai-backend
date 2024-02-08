@@ -8,7 +8,7 @@ const acceptedFileTypes = [
 
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, './tmp')
+        callback(null, './songs/tmp')
     },
     filename: function (req, file, callback) {
         callback(null, file.originalname)

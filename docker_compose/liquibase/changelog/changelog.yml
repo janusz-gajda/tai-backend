@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - includeAll:
+      path: /scripts/0.0.3/
+
+#  - include:
+#      file: /scripts/1_init_permission.sql
+#  - include:
+#      file: /scripts/2_init_user.sql
+#  - include:
+#      file: /scripts/3_init_permission_to_user.sql
+#  - include:
+#      file: /scripts/4_init_song.sql
+#  - include:
+#      file: /scripts/5_init_songs_ollection.sql
+#  - include:
+#      file: /scripts/6_init_song_to_songs_collection.sql
+#  - include:
+#      file: /scripts/7_init_shared_content.sql
