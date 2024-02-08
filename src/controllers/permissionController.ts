@@ -45,7 +45,7 @@ export async function deletePermission(name: string) {
 
 export function checkIfUserHasPermission(userPermissions: Permission[], ...permissionsToCheck: string[]) {
     if (userPermissions.length == 0) {
-        throw new ResponseError(400, 'user has no permissions')
+        throw new ResponseError(403, 'user has no permissions')
     }
     let valid: boolean = false
     const userPermissionNames: string[] = userPermissions.map((p: Permission) => p.name)

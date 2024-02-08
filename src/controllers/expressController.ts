@@ -9,6 +9,8 @@ import {router as songsCollectionRouter} from "../routes/songsCollectionRoutes"
 import {errorHandler} from "../utils/response";
 import {jwtStrategy} from "./passportController";
 import {oauthGoogleStrategy} from "./authGoogleStrategy";
+import swaggerUi from "swagger-ui-express";
+import swaggerFile from '../../docs/backend-server-api.json'
 
 export const app: Express = express()
 
@@ -22,5 +24,6 @@ app.use('/collections', songsCollectionRouter)
 app.use('/user', passport.authenticate("jwt", {session: false}), userRouter)
 app.use('/songs', songsRouter)
 app.use('/sharedContent', sharedContentRouter)
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 app.use(errorHandler)

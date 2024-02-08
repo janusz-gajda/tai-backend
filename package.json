@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./bin/app.js",
+    "swagger": "node ./src/swagger.ts",
     "dev": "npx nodemon ./src/app.ts",
     "build_prisma": "npx prisma generate",
     "db_pull": "npx prisma db pull"
@@ -31,12 +32,15 @@
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.1",
+    "swagger-ui-express": "^5.0.0",
     "typescript": "^5.3.3"
   },
   "devDependencies": {
+    "@types/swagger-ui-express": "^4.1.6",
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "prisma": "^5.7.1",
+    "swagger-autogen": "^2.23.7",
     "ts-node": "^10.9.2"
   }
 }
