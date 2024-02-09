@@ -1,6 +1,6 @@
 import {AccessType, ContentType, Prisma, Song} from "@prisma/client";
 import {ResponseError} from "../utils/response";
-import mm from "music-metadata";
+import mm, {IPicture} from "music-metadata";
 import {addSong, deleteSongById, findSongById, songExists, updateSongAccessType} from "../repositories/songsRepository";
 import {NextFunction, Request, Response} from "express";
 import * as fs from "fs";
@@ -36,6 +36,11 @@ export async function addNewSong(accessType: AccessType, file: Express.Multer.Fi
     } catch (e) {
         await deleteSongById(createdSong.id)
         throw new ResponseError(400, 'file could not be saved')
+    }
+
+    const pic: IPicture | undefined = common.picture?.at(0)
+    if (pic) {
+        fs.writeFileSync(newPath.concat('\\cover.png'), pic.data)
     }
 
     if (common.album && accessType === AccessType.PUBLIC) {
