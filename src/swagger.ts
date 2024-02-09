@@ -6,24 +6,19 @@ const docs = {
     },
     tags: [
         {
-            name: 'Permission',
-            description: ''
+            name: 'Permission'
         },
         {
-            name: 'Song',
-            description: ''
+            name: 'Song'
         },
         {
-            name: 'SongsCollection',
-            description: ''
+            name: 'SongsCollection'
         },
         {
-            name: 'SharedContent',
-            description: ''
+            name: 'SharedContent'
         },
         {
-            name: 'User',
-            description: ''
+            name: 'User'
         },
     ],
     components: {
