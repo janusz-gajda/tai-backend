@@ -31,16 +31,14 @@ services:
       - back
     healthcheck:
       test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
-      interval: 5s
-      timeout: 30s
+      interval: 30s
+      timeout: 60s
       retries: 5
       start_period: 80s
 
   liquibase:
     image: liquibase/liquibase:4.26-alpine
-    environment:
-      - INSTALL_MYSQL=true
-    command: update --url=jdbc:mysql://mariadb:3306/${DB_NAME} --changeLogFile=/changelog.yml --username=${DB_USER} --password=${DB_PWD}
+    command: update --url=jdbc:mariadb://mariadb:3306/${DB_NAME} --changeLogFile=/changelog.yml --username=${DB_USER} --password=${DB_PWD}
     volumes:
       - ./liquibase/changelog/changelog.yml:/liquibase/changelog/changelog.yml
       - ./liquibase/scripts:/liquibase/scripts
@@ -51,7 +49,7 @@ services:
         condition: service_healthy
 
   backend:
-    image: marepal631/tai_backend # backend:0.0.3
+    image: marepal631/tai_backend # backend:0.0.4
     restart: always
     volumes:
       - backend-data:/app/songs

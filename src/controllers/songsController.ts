@@ -1,6 +1,6 @@
 import {AccessType, ContentType, Prisma, Song} from "@prisma/client";
 import {ResponseError} from "../utils/response";
-import mm, {IPicture} from "music-metadata";
+import mm from "music-metadata";
 import {addSong, deleteSongById, findSongById, songExists, updateSongAccessType} from "../repositories/songsRepository";
 import {NextFunction, Request, Response} from "express";
 import * as fs from "fs";
@@ -10,6 +10,7 @@ import {
     findAlbumWithSongsByName
 } from "../repositories/songsCollectionRepository";
 import {countShareByContentIdAndContentType} from "../repositories/sharedContentRepository";
+import {convertMp3ToAac, deleteTmpFiles, saveCoverFromMp3} from "../utils/fileService";
 
 export async function addNewSong(accessType: AccessType, file: Express.Multer.File, addingUserId: bigint) {
     const songMetadata = await mm.parseFile(file.path)
@@ -32,21 +33,18 @@ export async function addNewSong(accessType: AccessType, file: Express.Multer.Fi
     const createdSong: Song = await addSong(addedSongData)
     const newPath = getSongPath(createdSong.id)
     try {
-        moveFile(file, newPath)
+        convertMp3ToAac(file.originalname, createdSong.id)
+        deleteTmpFiles('./songs/tmp')
+        saveCoverFromMp3(common.picture?.at(0), newPath)
     } catch (e) {
-        await deleteSongById(createdSong.id)
-        throw new ResponseError(400, 'file could not be saved')
+        if (e instanceof ResponseError) {
+            await deleteSongById(createdSong.id)
+            throw new ResponseError(400, 'file could not be saved')
+        }
     }
-
-    const pic: IPicture | undefined = common.picture?.at(0)
-    if (pic) {
-        fs.writeFileSync(newPath.concat('\\cover.png'), pic.data)
-    }
-
     if (common.album && accessType === AccessType.PUBLIC) {
         await updateAlbum(createdSong, common.album)
     }
-
     return createdSong
 }
 
@@ -94,13 +92,6 @@ async function updateAlbum(song: Song, albumName: string) {
     if (!album.songs.some(s => s.title.toLowerCase().includes(song.title.toLowerCase()))) {
         return await addSongToSongsCollection(song.id, album.id)
     }
-}
-
-function moveFile(file: Express.Multer.File, newFilePath: string) {
-    if (!fs.existsSync(newFilePath)) {
-        fs.mkdirSync(newFilePath)
-    }
-    fs.renameSync(file.path, newFilePath.concat('/', file.originalname))
 }
 
 function getSongPath(songId: bigint) {
