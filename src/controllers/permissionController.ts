@@ -7,18 +7,13 @@ import {
     updatePermissionData
 } from "../repositories/permissionRepository";
 import {ResponseError} from "../utils/response";
-import {throwIfArrayIsEmpty, throwIfObjectIsNull} from "../utils/dataChecks";
 
 export async function getPermissions() {
-    const roles = await findPermissions()
-    throwIfArrayIsEmpty(roles)
-    return roles
+    return await findPermissions()
 }
 
 export async function getPermissionByName(name: string) {
-    const role = await findPermissionByName(name)
-    throwIfObjectIsNull(role)
-    return role
+    return await findPermissionByName(name)
 }
 
 export async function addNewPermission(name: string, description: string): Promise<Permission> {

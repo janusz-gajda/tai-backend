@@ -25,7 +25,12 @@ router.route('/')
         const collectionType = req.query.type as string
         try {
             const data: SongsCollection[] = await getSongsCollectionsData(collectionType)
-            res.status(200).json(responseOk(res.locals.user, data))
+            if (data.length == 0) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }
@@ -53,8 +58,13 @@ router.route('/:id')
     .get(logInvokedEndpoint, isIdNumeric, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const collectionId = BigInt(req.params.id)
-            const data: SongsCollection = await getSongsCollectionDataById(collectionId)
-            res.status(200).json(responseOk(res.locals.user, data))
+            const data: SongsCollection | null = await getSongsCollectionDataById(collectionId)
+            if (!data) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }
@@ -114,7 +124,12 @@ router.route('/users/:username')
         try {
             const userId: bigint = await getUserIdByName(req.params.username)
             const data: SongsCollection[] = await getSongsCollectionsDataFromCreator(userId, ContentType.PLAYLIST)
-            res.status(200).json(responseOk(res.locals.user, data))
+            if (data.length == 0) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(res.locals.user, data))
         } catch (e) {
             next(e)
         }
@@ -125,7 +140,12 @@ router.route('/owner/jwt')
         try {
             const userData = res.locals.user
             const data: SongsCollection[] = await getSongsCollectionsDataFromCreator(userData.id, ContentType.PLAYLIST)
-            res.status(200).json(responseOk(userData, data))
+            if (data.length == 0) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(userData, data))
         } catch (e) {
             next(e)
         }

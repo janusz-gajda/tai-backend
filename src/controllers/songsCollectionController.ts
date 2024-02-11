@@ -13,32 +13,25 @@ import {
 } from "../repositories/songsCollectionRepository";
 import {ResponseError} from "../utils/response";
 import {PrismaClientKnownRequestError} from "@prisma/client/runtime/library";
-import {throwIfArrayIsEmpty, throwIfObjectIsNull} from "../utils/dataChecks";
 import {findSongById} from "../repositories/songsRepository";
 import {countShareByContentIdAndContentType} from "../repositories/sharedContentRepository";
 
 export async function getSongsCollectionsData(collectionType: string): Promise<SongsCollection[]> {
-    const typeUpperCase: string = collectionType.toUpperCase()
+    const typeUpperCase: string | null = collectionType ? collectionType.toUpperCase() : null
     if (typeUpperCase !== ContentType.PLAYLIST && typeUpperCase !== ContentType.ALBUM && typeUpperCase !== 'ALL') {
         throw new ResponseError(400, 'invalid collection type')
     }
 
     const type = typeUpperCase == 'ALL' ? undefined : typeUpperCase
-    const collections: SongsCollection[] = await findSongsCollectionsByContentType(type)
-    throwIfArrayIsEmpty(collections)
-    return collections
+    return await findSongsCollectionsByContentType(type)
 }
 
-export async function getSongsCollectionDataById(collectionId: bigint): Promise<SongsCollection> {
-    const collection = await findSongsCollectionById(collectionId)
-    throwIfObjectIsNull(collectionId)
-    return collection as SongsCollection
+export async function getSongsCollectionDataById(collectionId: bigint): Promise<SongsCollection | null> {
+    return await findSongsCollectionById(collectionId)
 }
 
 export async function getSongsCollectionsDataFromCreator(creatorId: bigint, contentType?: ContentType): Promise<SongsCollection[]> {
-    const songsCollections: SongsCollection[] = await findSongsCollectionsFromCreator(creatorId, contentType)
-    throwIfArrayIsEmpty(songsCollections)
-    return songsCollections
+    return await findSongsCollectionsFromCreator(creatorId, contentType)
 }
 
 export async function addSongsCollection(requestBody: any, creatorId: bigint) {

@@ -8,7 +8,6 @@ import {
 } from "../repositories/userRepository";
 import bcrypt from "bcrypt"
 import "dotenv/config"
-import {throwIfObjectIsNull} from "../utils/dataChecks";
 import {NextFunction, Request, Response} from "express";
 import {ResponseError} from "../utils/response";
 import {findPermissionByName} from "../repositories/permissionRepository";
@@ -17,8 +16,10 @@ const saltRounds: number = Number(process.env.SALT_ROUNDS) || 10
 
 export async function getUserIdByName(name: string): Promise<bigint> {
     const user = await findUserByName(name)
-    throwIfObjectIsNull(user)
-    return user?.id as bigint
+    if (!user) {
+        throw new ResponseError(404, 'user not found')
+    }
+    return user?.id
 }
 
 export async function addUser(name: string, email: string, password: string): Promise<User> {

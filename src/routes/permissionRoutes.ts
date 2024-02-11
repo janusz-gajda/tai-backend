@@ -21,7 +21,12 @@ router.route('/')
         try {
             checkIfUserHasPermission(res.locals.permissions, Permissions.ADMIN)
             const permissions: Permission[] = await getPermissions()
-            res.status(200).json(responseOk(res.locals.user, permissions))
+            if (permissions.length == 0) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(res.locals.user, permissions))
         } catch (e) {
             next(e)
         }
@@ -40,8 +45,13 @@ router.route('/:name')
     .get(logInvokedEndpoint, authenticateUser, getUserPermissions, async (req: Request, res: Response, next: NextFunction) => {
         try {
             checkIfUserHasPermission(res.locals.permissions, Permissions.ADMIN)
-            const foundPermission = await getPermissionByName(req.params.name)
-            res.status(200).json(responseOk(res.locals.user, foundPermission))
+            const foundPermission: Permission | null = await getPermissionByName(req.params.name)
+            if (!foundPermission) {
+                res.status(204)
+            } else {
+                res.status(200)
+            }
+            res.json(responseOk(res.locals.user, foundPermission))
         } catch (e) {
             next(e)
         }
