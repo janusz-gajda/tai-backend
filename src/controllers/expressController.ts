@@ -11,11 +11,14 @@ import {jwtStrategy} from "./passportController";
 import {oauthGoogleStrategy} from "./authGoogleStrategy";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from '../../docs/backend-server-api.json'
+import cors from 'cors'
 
 export const app: Express = express()
 
 passport.use("jwt", jwtStrategy)
 passport.use(oauthGoogleStrategy)
+
+app.use(cors())
 
 app.use(express.json())
 app.use('/permissions', permissionsRouter)
