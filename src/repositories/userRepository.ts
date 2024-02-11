@@ -1,9 +1,16 @@
-import {Prisma, PrismaClient, User} from "@prisma/client"
+import {AccessType, ContentType, Prisma, PrismaClient, User} from "@prisma/client"
 
 const prisma = new PrismaClient()
 
 export async function createUser(user: Prisma.UserCreateInput): Promise<User> {
-    return prisma.user.create({data: user})
+    return prisma.user.create({
+        data: {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            collections: getFavouriteSongsPlaylist()
+        }
+    })
 }
 
 export async function findUserById(id: number): Promise<User | null> {
@@ -86,7 +93,13 @@ export async function setGoogleIdToExistingUserOrCreateNewUser(user: Prisma.User
         update: {
             googleId: user.googleId
         },
-        create: user
+        create: {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            googleId: user.googleId,
+            collections: getFavouriteSongsPlaylist()
+        }
     })
 }
 
@@ -107,4 +120,15 @@ export async function findPermissionsFromUser(id: number) {
             id: id
         }
     }).permissions()
+}
+
+function getFavouriteSongsPlaylist() {
+    return {
+        create: {
+            name: 'Favourite songs',
+            description: 'Songs marked as favourite',
+            type: ContentType.PLAYLIST,
+            access: AccessType.PRIVATE
+        }
+    }
 }
