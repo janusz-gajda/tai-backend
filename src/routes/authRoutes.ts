@@ -5,7 +5,7 @@ import {User} from "@prisma/client";
 import {responseOk} from "../utils/response";
 import {addUser} from "../controllers/userController";
 import {findUserByEmail} from "../repositories/userRepository";
-import {getAccessToken, getUserData, verifyUser} from "../controllers/authGoogleStrategy";
+import {getUserData, verifyUser} from "../controllers/googleOAuthController";
 
 export const router = express.Router()
 
@@ -37,24 +37,15 @@ router.route('/register').post(logInvokedEndpoint, async (req: Request, res: Res
         return
     }
     const user: User = await addUser(name, email, password)
-    res.status(201).json(responseOk(user))
+    res.status(201).json(responseOk(user, user))
 })
-
-
-// only for test purposes
-// router.route('/google')
-//     .get(logInvokedEndpoint, async (req, res, next) => {
-//         res.redirect(authorizationUrl)
-//     })
 
 router.route('/google/callback')
     .get(async (req: Request, res: Response, next) => {
         try {
-            // const accessToken = await getAccessToken(req.query.code as string)
-            // const userInfo = await getUserData(accessToken as string)
             const userInfo = await getUserData(req.query.code as string)
             const user: User = await verifyUser(userInfo)
-            res.status(200).json(responseOk(user))
+            res.status(200).json(responseOk(user, user))
         } catch (e) {
             next(e)
         }
