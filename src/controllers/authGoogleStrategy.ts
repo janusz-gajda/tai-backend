@@ -1,7 +1,18 @@
 import {User} from "@prisma/client";
 import {findUserByGoogleId, setGoogleIdToExistingUserOrCreateNewUser} from "../repositories/userRepository";
 import {generateRandomPassword} from "./userController";
-import {google, oauth2_v2} from "googleapis";
+import {google} from "googleapis";
+import axios from "axios";
+
+type UserInfo = {
+    sub: string,
+    name: string,
+    given_name: string,
+    picture: string,
+    email: string,
+    email_verified: boolean,
+    locale: string
+}
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID as string,
@@ -20,25 +31,25 @@ export async function getAccessToken(code: string) {
 }
 
 export async function getUserData(accessToken: string) {
-    const userData = await google.oauth2('v2').userinfo.get({}, {
+    const userInfo = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
     })
-    return userData.data
+    return userInfo.data as UserInfo
 }
 
-export async function verifyUser(userData: oauth2_v2.Schema$Userinfo) {
-    let user: User | null = await findUserByGoogleId(userData.id as string)
+export async function verifyUser(userData: UserInfo) {
+    let user: User | null = await findUserByGoogleId(userData.sub)
     if (user) {
         return user
     }
 
     const data = {
-        name: userData.name as string,
+        name: userData.name,
         password: await generateRandomPassword(),
-        email: userData.email as string,
-        googleId: userData.id as string
+        email: userData.email,
+        googleId: userData.sub
     }
     return await setGoogleIdToExistingUserOrCreateNewUser(data)
 }
