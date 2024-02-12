@@ -5,7 +5,7 @@ import {User} from "@prisma/client";
 import {responseOk} from "../utils/response";
 import {addUser} from "../controllers/userController";
 import {findUserByEmail} from "../repositories/userRepository";
-import passport from "passport";
+import {authorizationUrl, getAccessToken, getUserData, verifyUser} from "../controllers/authGoogleStrategy";
 
 export const router = express.Router()
 
@@ -40,14 +40,21 @@ router.route('/register').post(logInvokedEndpoint, async (req: Request, res: Res
     res.status(201).json(responseOk(user))
 })
 
+
+// only for test purposes
 router.route('/google')
-    .get(logInvokedEndpoint, passport.authenticate('google', {
-        scope: ['profile', 'email']
-    }))
+    .get(logInvokedEndpoint, async (req, res, next) => {
+        res.redirect(authorizationUrl)
+    })
 
 router.route('/google/callback')
-    .get(passport.authenticate('google', {
-        failureMessage: true, session: false
-    }), async (req: Request, res: Response) => {
-        res.status(200).json(responseOk(req.user as User))
+    .get(async (req: Request, res: Response, next) => {
+        try {
+            const accessToken = await getAccessToken(req.query.code as string)
+            const userInfo = await getUserData(accessToken as string)
+            const user: User = await verifyUser(userInfo)
+            res.status(200).json(responseOk(user))
+        } catch (e) {
+            next(e)
+        }
     })

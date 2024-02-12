@@ -8,14 +8,12 @@ import {router as songsRouter} from "../routes/songsRoutes"
 import {router as songsCollectionRouter} from "../routes/songsCollectionRoutes"
 import {errorHandler} from "../utils/response";
 import {jwtStrategy} from "./passportController";
-import {oauthGoogleStrategy} from "./authGoogleStrategy";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from '../../docs/backend-server-api.json'
 
 export const app: Express = express()
 
 passport.use("jwt", jwtStrategy)
-passport.use(oauthGoogleStrategy)
 
 app.use(express.json())
 app.use('/permissions', permissionsRouter)

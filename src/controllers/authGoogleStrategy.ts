@@ -1,26 +1,44 @@
-import {OAuth2Strategy as GoogleStrategy, Profile, VerifyFunction} from "passport-google-oauth";
 import {User} from "@prisma/client";
 import {findUserByGoogleId, setGoogleIdToExistingUserOrCreateNewUser} from "../repositories/userRepository";
 import {generateRandomPassword} from "./userController";
+import {google, oauth2_v2} from "googleapis";
 
-export const oauthGoogleStrategy: GoogleStrategy = new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID as string,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    callbackURL: '/auth/google/callback'
-}, verify)
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID as string,
+    process.env.GOOGLE_CLIENT_SECRET as string,
+    `http://localhost:${process.env.PORT}/auth/google/callback`
+)
 
-async function verify(accessToken: string, refreshToken: string, profile: Profile, done: VerifyFunction) {
-    let user: User | null = await findUserByGoogleId(profile.id)
+// only for test purposes
+export const authorizationUrl = oauth2Client.generateAuthUrl({
+    scope: ['profile', 'email']
+})
+
+export async function getAccessToken(code: string) {
+    const tokens = await oauth2Client.getToken(code)
+    return tokens.tokens.access_token
+}
+
+export async function getUserData(accessToken: string) {
+    const userData = await google.oauth2('v2').userinfo.get({}, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+    return userData.data
+}
+
+export async function verifyUser(userData: oauth2_v2.Schema$Userinfo) {
+    let user: User | null = await findUserByGoogleId(userData.id as string)
     if (user) {
-        return done(null, user)
+        return user
     }
-    const email = profile.emails?.at(0)?.value as string
+
     const data = {
-        name: profile.displayName,
+        name: userData.name as string,
         password: await generateRandomPassword(),
-        email: email,
-        googleId: profile.id
+        email: userData.email as string,
+        googleId: userData.id as string
     }
-    user = await setGoogleIdToExistingUserOrCreateNewUser(data)
-    return done(null, user)
+    return await setGoogleIdToExistingUserOrCreateNewUser(data)
 }
