@@ -10,10 +10,13 @@ import {errorHandler} from "../utils/response";
 import {jwtStrategy} from "./passportController";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from '../../docs/backend-server-api.json'
+import cors from 'cors'
 
 export const app: Express = express()
 
 passport.use("jwt", jwtStrategy)
+
+app.use(cors())
 
 app.use(express.json())
 app.use('/permissions', permissionsRouter)
