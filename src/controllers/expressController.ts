@@ -26,5 +26,6 @@ app.use('/user', passport.authenticate("jwt", {session: false}), userRouter)
 app.use('/songs', songsRouter)
 app.use('/sharedContent', sharedContentRouter)
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+app.use('/files', express.static(process.env.SONGS_PATH as string))
 
 app.use(errorHandler)
