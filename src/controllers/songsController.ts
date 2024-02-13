@@ -25,6 +25,7 @@ export async function addNewSong(accessType: AccessType, file: Express.Multer.Fi
         title: common.title as string,
         author: common.artist as string,
         access: accessType,
+        trackNo: common.track.no || undefined,
         addingUser: {
             connect: {id: addingUserId}
         }

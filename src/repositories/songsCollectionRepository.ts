@@ -46,7 +46,7 @@ export async function findSongsCollectionByIdAndCreatorId(collectionId: bigint, 
 }
 
 export async function findSongsCollectionsByContentType(collectionType?: ContentType): Promise<SongsCollection[]> {
-    return prisma.songsCollection.findMany({
+    const collections = await prisma.songsCollection.findMany({
         where: {
             type: collectionType
         },
@@ -54,6 +54,12 @@ export async function findSongsCollectionsByContentType(collectionType?: Content
             songs: true
         }
     })
+    collections.forEach(collection => {
+        if (collection.type === ContentType.ALBUM) {
+            collection.songs.sort((prev: Song, next: Song) => (prev.trackNo || 0) - (next.trackNo || 0))
+        }
+    })
+    return collections
 }
 
 export async function findPlaylistsFromUser(userId: bigint): Promise<SongsCollection[]> {
