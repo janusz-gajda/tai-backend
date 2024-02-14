@@ -38,9 +38,9 @@ services:
 
   liquibase:
     image: liquibase/liquibase:4.26-alpine
-    command: update --url=jdbc:mariadb://mariadb:3306/${DB_NAME} --changeLogFile=/changelog.yml --username=${DB_USER} --password=${DB_PWD}
+    command: update --url=jdbc:mariadb://mariadb:3306/${DB_NAME} --changeLogFile=changelog.yml --username=${DB_USER} --password=${DB_PWD}
     volumes:
-      - ./liquibase/changelog/changelog.yml:/liquibase/changelog/changelog.yml
+      - ./liquibase/changelog/changelog.yml:/liquibase/changelog.yml # ./liquibase/changelog/changelog.yml:/liquibase/changelog/changelog.yml (working on Windows)
       - ./liquibase/scripts:/liquibase/scripts
     networks:
       - back
@@ -62,6 +62,21 @@ services:
         condition: service_completed_successfully
     networks:
       - back
+
+  frontend:
+    image: marepal631/tai_frontend
+    restart: always
+    environment:
+      TAI_API_URL: http://localhost:8080/
+      TAI_GOOGLE_CLIENT_ID: 973777854173-pr4vohi6sv2ve94r2bj8ta8q69vlbq9u.apps.googleusercontent.com
+      TAI_GOOGLE_CLIENT_SECRET: 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
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - front
 
 volumes:
   mariadb-data:

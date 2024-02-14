@@ -3,7 +3,7 @@ import {Request} from "express";
 import {ResponseError} from "./response";
 
 const acceptedFileTypes = [
-    'audio/mpeg'
+    'audio/*'
 ]
 
 const storage = multer.diskStorage({
