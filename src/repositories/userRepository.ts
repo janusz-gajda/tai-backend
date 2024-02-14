@@ -8,7 +8,8 @@ export async function createUser(user: Prisma.UserCreateInput): Promise<User> {
             name: user.name,
             email: user.email,
             password: user.password,
-            collections: getFavouriteSongsPlaylist()
+            collections: getFavouriteSongsPlaylist(),
+            permissions: getDefaultPermissions()
         }
     })
 }
@@ -109,7 +110,8 @@ export async function setGoogleIdToExistingUserOrCreateNewUser(user: Prisma.User
             email: user.email,
             password: user.password,
             googleId: user.googleId,
-            collections: getFavouriteSongsPlaylist()
+            collections: getFavouriteSongsPlaylist(),
+            permissions: getDefaultPermissions()
         }
     })
 }
@@ -141,5 +143,13 @@ function getFavouriteSongsPlaylist() {
             type: ContentType.PLAYLIST,
             access: AccessType.PRIVATE
         }
+    }
+}
+
+function getDefaultPermissions() {
+    return {
+        connect: [
+            {name: 'VIEW'}, {name: 'MANAGE_SONGS'}
+        ]
     }
 }
