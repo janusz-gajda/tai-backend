@@ -90,7 +90,10 @@ async function updateAlbum(song: Song, albumName: string) {
     if (!album) {
         return await createAlbumIfNotExists(song, albumName)
     }
-    if (!album.songs.some(s => s.title.toLowerCase().includes(song.title.toLowerCase()))) {
+    if (!album.songs.some((s: Song) => {
+        s.title.trim().length === song.title.trim().length
+        && song.title.toLowerCase().trim().includes(s.title.toLowerCase().trim())
+    })) {
         return await addSongToSongsCollection(song.id, album.id)
     }
 }
