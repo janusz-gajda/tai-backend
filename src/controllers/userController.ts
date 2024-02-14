@@ -66,24 +66,19 @@ export async function updateUserPermissions(permissionName: string, userName: st
 }
 
 export async function changePassword(user: User, passwords: PasswordUpdate) {
-    if (!await bcrypt.compare(user.password, passwords.oldPassword)) {
-        throw new ResponseError(400, 'old password mismatch with actual user\'s password')
+    if (user.password) {
+        if (passwords.oldPassword === passwords.newPassword) {
+            throw new ResponseError(400, 'passwords are the same')
+        }
+        if (!(await bcrypt.compare(passwords.oldPassword, user.password))) {
+            throw new ResponseError(400, 'old password mismatch with actual user\'s password')
+        }
     }
-    if (!await bcrypt.compare(passwords.oldPassword, passwords.newPassword)) {
-        throw new ResponseError(400, 'passwords are the same')
-    }
-
     return await updateUserPassword(user.id, await hashPassword(passwords.newPassword))
 }
 
 async function hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, saltRounds)
-}
-
-export async function generateRandomPassword(): Promise<string> {
-    // zrobiłem to dla zwały xd
-    const str = Math.random().toString(36).substring(2, 10)
-    return await hashPassword(str)
 }
 
 export const getUserPermissions = async (req: Request, res: Response, next: NextFunction) => {

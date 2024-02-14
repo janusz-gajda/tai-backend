@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS User
 (
     id       BIGINT PRIMARY KEY AUTO_INCREMENT,
     name     VARCHAR(32) UNIQUE  NOT NULL,
-    password VARCHAR(255)        NOT NULL,
+    password VARCHAR(255),
     email    VARCHAR(255) UNIQUE NOT NULL,
     googleId VARCHAR(32)
 );

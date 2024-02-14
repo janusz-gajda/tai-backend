@@ -1,6 +1,5 @@
 import {User} from "@prisma/client";
 import {findUserByGoogleId, setGoogleIdToExistingUserOrCreateNewUser} from "../repositories/userRepository";
-import {generateRandomPassword} from "./userController";
 import axios from "axios";
 
 type UserInfo = {
@@ -30,7 +29,7 @@ export async function verifyUser(userData: UserInfo) {
 
     const data = {
         name: userData.name,
-        password: await generateRandomPassword(),
+        password: undefined,
         email: userData.email,
         googleId: userData.sub
     }
