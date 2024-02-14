@@ -4,7 +4,8 @@ import {
     createUser,
     findPermissionsFromUser,
     findUserByName,
-    revokePermissionFromUser
+    revokePermissionFromUser,
+    updateUser
 } from "../repositories/userRepository";
 import bcrypt from "bcrypt"
 import "dotenv/config"
@@ -13,6 +14,16 @@ import {ResponseError} from "../utils/response";
 import {findPermissionByName} from "../repositories/permissionRepository";
 
 const saltRounds: number = Number(process.env.SALT_ROUNDS) || 10
+
+export type UserUpdate = {
+    name: string,
+    email: string
+}
+
+export type PasswordUpdate = {
+    oldPassword: string,
+    newPassword: string
+}
 
 export async function getUserIdByName(name: string): Promise<bigint> {
     const user = await findUserByName(name)
@@ -30,6 +41,10 @@ export async function addUser(name: string, email: string, password: string): Pr
     }
 
     return await createUser(user)
+}
+
+export async function modifyUserData(userId: bigint, data: UserUpdate): Promise<User> {
+    return await updateUser(userId, data)
 }
 
 export async function updateUserPermissions(permissionName: string, userName: string, requestMethod: string) {

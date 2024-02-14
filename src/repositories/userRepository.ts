@@ -45,7 +45,7 @@ export async function findUserByGoogleId(googleId: string): Promise<User | null>
     })
 }
 
-export async function updateUser(id: number, updateData: Prisma.UserUpdateInput) {
+export async function updateUser(id: bigint, updateData: Prisma.UserUpdateInput) {
     return prisma.user.update({
         where: {
             id: id

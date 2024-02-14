@@ -3,19 +3,42 @@ import {responseOk} from "../utils/response";
 import {Permission, User} from "@prisma/client";
 import {logInvokedEndpoint} from "../utils/logger";
 import {authenticateUser} from "../controllers/authController";
-import {getUserPermissions, updateUserPermissions} from "../controllers/userController";
+import {getUserPermissions, modifyUserData, updateUserPermissions, UserUpdate} from "../controllers/userController";
 import {checkIfUserHasPermission} from "../controllers/permissionController";
 import {Permissions} from "../utils/permissions";
 
 export const router: Router = express.Router()
 
-router.get('/', (req: Request, res: Response, next: NextFunction) => {
-    try {
-        res.status(200).json(responseOk(req.user as User, req.user))
-    } catch (e: any) {
-        next(e)
-    }
-})
+router.route('/')
+    .get(logInvokedEndpoint, (req: Request, res: Response, next: NextFunction) => {
+        try {
+            res.status(200).json(responseOk(req.user as User, req.user))
+        } catch (e: any) {
+            next(e)
+        }
+    })
+    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = res.locals.user
+            const updateData: UserUpdate = req.body as UserUpdate
+            const updatedUser = await modifyUserData(userData.id, updateData)
+            res.status(200).json(responseOk(updatedUser))
+        } catch (e) {
+            next(e)
+        }
+    })
+
+router.route('/password')
+    .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // const userData = res.locals.user
+            // const passwords: PasswordUpdate = req.body
+            // const updatedUser = await changePassword
+            // res.status(200).json(responseOk())
+        } catch (e) {
+            next(e)
+        }
+    })
 
 router.route('/:name/permission/:permission')
     .post(logInvokedEndpoint, authenticateUser, getUserPermissions, async (req: Request, res: Response, next: NextFunction) => {
