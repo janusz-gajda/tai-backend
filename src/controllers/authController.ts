@@ -46,7 +46,8 @@ export async function authUser(data: string, password: string): Promise<User | n
     if (!user) {
         return null
     }
-    if (!await bcrypt.compare(password, user.password)) {
+
+    if (user.password && !await bcrypt.compare(password, user.password)) {
         return null
     }
     return user
