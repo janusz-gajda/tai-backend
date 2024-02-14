@@ -5,7 +5,8 @@ import {
     findPermissionsFromUser,
     findUserByName,
     revokePermissionFromUser,
-    updateUser
+    updateUser,
+    updateUserPassword
 } from "../repositories/userRepository";
 import bcrypt from "bcrypt"
 import "dotenv/config"
@@ -43,7 +44,7 @@ export async function addUser(name: string, email: string, password: string): Pr
     return await createUser(user)
 }
 
-export async function modifyUserData(userId: bigint, data: UserUpdate): Promise<User> {
+export async function updateUserData(userId: bigint, data: UserUpdate): Promise<User> {
     return await updateUser(userId, data)
 }
 
@@ -64,6 +65,17 @@ export async function updateUserPermissions(permissionName: string, userName: st
     return updatedUser
 }
 
+export async function changePassword(user: User, passwords: PasswordUpdate) {
+    if (!await bcrypt.compare(user.password, passwords.oldPassword)) {
+        throw new ResponseError(400, 'old password mismatch with actual user\'s password')
+    }
+    if (!await bcrypt.compare(passwords.oldPassword, passwords.newPassword)) {
+        throw new ResponseError(400, 'passwords are the same')
+    }
+
+    return await updateUserPassword(user.id, await hashPassword(passwords.newPassword))
+}
+
 async function hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, saltRounds)
 }
@@ -77,13 +89,5 @@ export async function generateRandomPassword(): Promise<string> {
 export const getUserPermissions = async (req: Request, res: Response, next: NextFunction) => {
     const userData = res.locals.user
     res.locals.permissions = await findPermissionsFromUser(userData.id)
-    next()
-}
-
-export const validateAction = async (req: Request, res: Response, next: NextFunction) => {
-    const action = req.query.action as string
-    if ('ASSIGN' !== action.toUpperCase() && 'REVOKE' !== action.toUpperCase()) {
-        throw new ResponseError(400, 'invalid action')
-    }
     next()
 }

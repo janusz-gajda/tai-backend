@@ -57,6 +57,17 @@ export async function updateUser(id: bigint, updateData: Prisma.UserUpdateInput)
     })
 }
 
+export async function updateUserPassword(id: bigint, newHashedPassword: string) {
+    return prisma.user.update({
+        where: {
+            id: id
+        },
+        data: {
+            password: newHashedPassword
+        }
+    })
+}
+
 export async function assignPermissionToUser(userName: string, permissionName: string): Promise<User | null> {
     return prisma.user.update({
         where: {

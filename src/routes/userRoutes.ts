@@ -3,7 +3,14 @@ import {responseOk} from "../utils/response";
 import {Permission, User} from "@prisma/client";
 import {logInvokedEndpoint} from "../utils/logger";
 import {authenticateUser} from "../controllers/authController";
-import {getUserPermissions, modifyUserData, updateUserPermissions, UserUpdate} from "../controllers/userController";
+import {
+    changePassword,
+    getUserPermissions,
+    PasswordUpdate,
+    updateUserData,
+    updateUserPermissions,
+    UserUpdate
+} from "../controllers/userController";
 import {checkIfUserHasPermission} from "../controllers/permissionController";
 import {Permissions} from "../utils/permissions";
 
@@ -21,7 +28,7 @@ router.route('/')
         try {
             const userData = res.locals.user
             const updateData: UserUpdate = req.body as UserUpdate
-            const updatedUser = await modifyUserData(userData.id, updateData)
+            const updatedUser = await updateUserData(userData.id, updateData)
             res.status(200).json(responseOk(updatedUser))
         } catch (e) {
             next(e)
@@ -31,10 +38,10 @@ router.route('/')
 router.route('/password')
     .put(logInvokedEndpoint, authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // const userData = res.locals.user
-            // const passwords: PasswordUpdate = req.body
-            // const updatedUser = await changePassword
-            // res.status(200).json(responseOk())
+            const userData = res.locals.user
+            const passwords: PasswordUpdate = req.body
+            const updatedUser = await changePassword(userData, passwords)
+            res.status(200).json(responseOk(updatedUser))
         } catch (e) {
             next(e)
         }
