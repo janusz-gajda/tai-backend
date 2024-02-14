@@ -3,7 +3,13 @@ import {Request} from "express";
 import {ResponseError} from "./response";
 
 const acceptedFileTypes = [
-    'audio/*'
+    'audio/mpeg',
+    'audio/ogg',
+    'audio/opus',
+    'audio/aac',
+    'audio/matroska',
+    'audio/flac',
+    'audio/x-flac'
 ]
 
 const storage = multer.diskStorage({
