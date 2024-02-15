@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS _SongToSongsCollection
     A BIGINT,
     B BIGINT,
     FOREIGN KEY (A) REFERENCES Song (id),
-    FOREIGN KEY (B) REFERENCES SongsCollection (id)
+    FOREIGN KEY (B) REFERENCES SongsCollection (id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX _SongToSongsCollection_AB_unique ON _SongToSongsCollection (A, B);
